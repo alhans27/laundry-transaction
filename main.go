@@ -200,6 +200,7 @@ func displayAllCustomer() {
 	fmt.Println("|\t\t\tCUSTOMER ENIGMA LAUNDRY\t\t\t|")
 	fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
+	resetTable()
 	t.AppendHeader(table.Row{"No", "Nama Customer", "Customer Id", "Nomor Handphone", "Alamat"})
 	for i, cust := range customers {
 		t.AppendRow([]interface{}{i + 1, cust.Name, cust.Id, cust.Phone, cust.Address})
@@ -230,6 +231,7 @@ func displayAllEmployer() {
 	fmt.Println("|\t\t\tKARYAWAN ENIGMA LAUNDRY\t\t\t|")
 	fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
+	resetTable()
 	t.AppendHeader(table.Row{"No", "Nama Karyawan", "Karyawan Id", "Nomor Handphone", "Alamat"})
 	for i, emp := range employers {
 		t.AppendRow([]interface{}{i + 1, emp.Name, emp.Id, emp.Phone, emp.Address})
@@ -260,6 +262,7 @@ func displayAllService() {
 	fmt.Println("|\t\t\tLAYANAN ENIGMA LAUNDRY\t\t\t|")
 	fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
+	resetTable()
 	t.AppendHeader(table.Row{"No", "Nama Layanan", "Harga", "Satuan"})
 	for i, serv := range services {
 		t.AppendRow([]interface{}{i + 1, serv.ServiceName, serv.Price, serv.Unit})
@@ -290,6 +293,7 @@ func displayAllTransaction() {
 	fmt.Println("|\t\t\tTRANSAKSI ENIGMA LAUNDRY\t\t\t|")
 	fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
+	resetTable()
 	t.AppendHeader(table.Row{"No", "Tanggal Masuk", "Tanggal Keluar", "Nomor Transaksi", "Diterima Oleh", "Nama Customer", "No Hp Customer"})
 	for i, trx := range transactions {
 		dateIn, err := time.Parse("2006-01-02T15:04:05Z", trx.DateIn)
@@ -340,6 +344,7 @@ func displayDetailTransaction() {
 	fmt.Println("|\t\t\tDETAIL TRANSAKSI ENIGMA LAUNDRY\t\t\t|")
 	fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
+	resetTable()
 	t.AppendHeader(table.Row{"No", "Nama Layanan", "Harga", "Satuan", "Jumlah", "Total"})
 
 	for i, trx := range arrays {
@@ -350,4 +355,11 @@ func displayDetailTransaction() {
 	t.AppendFooter(table.Row{"", "", "", "", "Total", totalHarga})
 
 	t.Render()
+	fmt.Println()
+}
+
+func resetTable() {
+	t.ResetHeaders()
+	t.ResetRows()
+	t.ResetFooters()
 }
