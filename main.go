@@ -19,7 +19,10 @@ const (
 var psqlInfo = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, pass, dbname)
 
 func main() {
-	// customer := entity.Customer{Id: 1, Name: "Jessica", Phone: "089765456324", Address: "Jakarta"}
+	/*
+		================================== DEBUGING ONLY ==================================
+	*/
+	// customer := entity.Customer{Id: 4, Name: "Alhans", Phone: "081256783902", Address: "Jepara"}
 	// employer := entity.Employer{Id: 1, Name: "Mirna", Phone: "089765456324", Address: "Surabaya"}
 	// layanan := entity.Layanan{Id: 1, ServiceName: "Cuci", Price: 5000, Unit: "KG"}
 	// fmt.Println(customer)
@@ -29,11 +32,18 @@ func main() {
 	// fmt.Println(connectDb())
 
 	// customers := getAllCustomer()
-	employers := getAllService()
 
-	for _, emp := range employers {
-		fmt.Println(emp)
+	// addCustomer(customer)
+	// updateCustomer(customer)
+	deleteCustomer(4)
+
+	arrays := getAllCustomer()
+	for _, x := range arrays {
+		fmt.Println(x)
 	}
+	/*
+		================================== [END] DEBUGING ONLY ==================================
+	*/
 }
 
 /*
@@ -210,4 +220,70 @@ func getAllService() []entity.Layanan {
 	defer rows.Close()
 	services := scanService(rows)
 	return services
+}
+
+/*
+== ADD CUSTOMER FUNCTION ==
+-> Menambah Data Customer Baru
+-> Menggunakan tabel mst_customer
+*/
+
+func addCustomer(customer entity.Customer) {
+	insertStatement := "INSERT INTO mst_customer (id, name, phone, address) VALUES ($1, $2, $3, $4);"
+
+	db := connectDb()
+	defer db.Close()
+	var err error
+
+	_, err = db.Exec(insertStatement, customer.Id, customer.Name, customer.Phone, customer.Address)
+
+	if err != nil {
+		panic(err)
+	} else {
+		fmt.Println("Successfully Insert Data!")
+	}
+}
+
+/*
+== UPDATE CUSTOMER FUNCTION ==
+-> Mengubah Data Customer Berdasarkan Id
+-> Menggunakan tabel mst_customer
+*/
+
+func updateCustomer(customer entity.Customer) {
+	updateStatement := "UPDATE mst_customer SET name = $2, phone=$3, address=$4 WHERE id=$1;"
+
+	db := connectDb()
+	defer db.Close()
+	var err error
+
+	_, err = db.Exec(updateStatement, customer.Id, customer.Name, customer.Phone, customer.Address)
+
+	if err != nil {
+		panic(err)
+	} else {
+		fmt.Println("Successfully Update Data!")
+	}
+}
+
+/*
+== DELETE CUSTOMER FUNCTION ==
+-> Menghapus Data Customer Berdasarkan Id
+-> Menggunakan tabel mst_customer
+*/
+
+func deleteCustomer(id int) {
+	deleteStatement := "DELETE FROM mst_customer WHERE id=$1;"
+
+	db := connectDb()
+	defer db.Close()
+	var err error
+
+	_, err = db.Exec(deleteStatement, id)
+
+	if err != nil {
+		panic(err)
+	} else {
+		fmt.Println("Successfully Delete Data!")
+	}
 }
