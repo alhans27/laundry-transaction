@@ -36,6 +36,11 @@ func main() {
 	}
 }
 
+/*
+== CONNECT DB FUNCTION ==
+-> Koneksi ke Database PLSQL
+*/
+
 func connectDb() *sql.DB {
 	db, err := sql.Open("postgres", psqlInfo)
 
@@ -53,6 +58,11 @@ func connectDb() *sql.DB {
 
 	return db
 }
+
+/*
+== SCAN CUSTOMER FUNCTION ==
+-> Mengambil data Customer dari hasil db.Query() dan memasukkannya ke dalam Array Struct
+*/
 
 func scanCustomer(rows *sql.Rows) []entity.Customer {
 	customers := []entity.Customer{}
@@ -77,6 +87,11 @@ func scanCustomer(rows *sql.Rows) []entity.Customer {
 	return customers
 }
 
+/*
+== SCAN EMPLOYER FUNCTION ==
+-> Mengambil data Employer dari hasil db.Query() dan memasukkannya ke dalam Array Struct
+*/
+
 func scanEmployer(rows *sql.Rows) []entity.Employer {
 	employers := []entity.Employer{}
 	var err error
@@ -99,6 +114,11 @@ func scanEmployer(rows *sql.Rows) []entity.Employer {
 
 	return employers
 }
+
+/*
+== SCAN SERVICE FUNCTION ==
+-> Mengambil data Layanan dari hasil db.Query() dan memasukkannya ke dalam Array Struct
+*/
 
 func scanService(rows *sql.Rows) []entity.Layanan {
 	services := []entity.Layanan{}
@@ -123,6 +143,12 @@ func scanService(rows *sql.Rows) []entity.Layanan {
 	return services
 }
 
+/*
+== GET ALL CUSTOMER FUNCTION ==
+-> Mengambil semua data Customer dari tabel mst_customer
+-> Mengembalikan nilai berupa Array Struct of Customer
+*/
+
 func getAllCustomer() []entity.Customer {
 	selectStatement := "SELECT id, name, phone, address FROM mst_customer"
 
@@ -140,6 +166,12 @@ func getAllCustomer() []entity.Customer {
 	return customers
 }
 
+/*
+== GET ALL EMPLOYER FUNCTION ==
+-> Mengambil semua data Employer dari tabel mst_employer
+-> Mengembalikan nilai berupa Array Struct of Employer
+*/
+
 func getAllEmployer() []entity.Employer {
 	selectStatement := "SELECT id, name, phone, address FROM mst_employer"
 
@@ -156,6 +188,12 @@ func getAllEmployer() []entity.Employer {
 	employers := scanEmployer(rows)
 	return employers
 }
+
+/*
+== GET ALL SERVICE FUNCTION ==
+-> Mengambil semua data Layanan dari tabel mst_layanan
+-> Mengembalikan nilai berupa Array Struct of Layanan
+*/
 
 func getAllService() []entity.Layanan {
 	selectStatement := "SELECT id, service_name, price, unit FROM mst_layanan"
