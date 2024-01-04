@@ -24,7 +24,7 @@ func main() {
 	*/
 	// customer := entity.Customer{Id: 4, Name: "Alhans", Phone: "081256783902", Address: "Jepara"}
 	// employer := entity.Employer{Id: 4, Name: "Alhans", Phone: "089765456324", Address: "Surakarta"}
-	// layanan := entity.Layanan{Id: 1, ServiceName: "Cuci", Price: 5000, Unit: "KG"}
+	// layanan := entity.Layanan{Id: 7, ServiceName: "Laundry Gorden", Price: 30000, Unit: "Buah"}
 	// fmt.Println(customer)
 	// fmt.Println(employer)
 	// fmt.Println(layanan)
@@ -39,12 +39,16 @@ func main() {
 
 	// addEmployer(employer)
 	// updateEmployer(employer)
-	deleteEmployer(4)
+	// deleteEmployer(4)
 
-	arrays := getAllEmployer()
-	for _, x := range arrays {
-		fmt.Println(x)
-	}
+	// addService(layanan)
+	// updateService(layanan)
+	// deleteService(7)
+
+	// arrays := getAllService()
+	// for _, x := range arrays {
+	// 	fmt.Println(x)
+	// }
 	/*
 		================================== [END] DEBUGING ONLY ==================================
 	*/
@@ -344,6 +348,72 @@ func updateEmployer(employer entity.Employer) {
 
 func deleteEmployer(id int) {
 	deleteStatement := "DELETE FROM mst_employer WHERE id=$1;"
+
+	db := connectDb()
+	defer db.Close()
+	var err error
+
+	_, err = db.Exec(deleteStatement, id)
+
+	if err != nil {
+		panic(err)
+	} else {
+		fmt.Println("Successfully Delete Data!")
+	}
+}
+
+/*
+================================== ADD SERVICE FUNCTION ==================================
+-> Menambah Data Layanan Baru
+-> Menggunakan tabel mst_layanan
+*/
+
+func addService(service entity.Layanan) {
+	insertStatement := "INSERT INTO mst_layanan (id, service_name, price, unit) VALUES ($1, $2, $3, $4);"
+
+	db := connectDb()
+	defer db.Close()
+	var err error
+
+	_, err = db.Exec(insertStatement, service.Id, service.ServiceName, service.Price, service.Unit)
+
+	if err != nil {
+		panic(err)
+	} else {
+		fmt.Println("Successfully Insert Data!")
+	}
+}
+
+/*
+================================== UPDATE SERVICE FUNCTION ==================================
+-> Mengubah Data Layanan Berdasarkan Id
+-> Menggunakan tabel mst_layanan
+*/
+
+func updateService(service entity.Layanan) {
+	updateStatement := "UPDATE mst_layanan SET service_name = $2, price=$3, unit=$4 WHERE id=$1;"
+
+	db := connectDb()
+	defer db.Close()
+	var err error
+
+	_, err = db.Exec(updateStatement, service.Id, service.ServiceName, service.Price, service.Unit)
+
+	if err != nil {
+		panic(err)
+	} else {
+		fmt.Println("Successfully Update Data!")
+	}
+}
+
+/*
+================================== DELETE SERVICE FUNCTION ==================================
+-> Menghapus Data Layanan Berdasarkan Id
+-> Menggunakan tabel mst_layanan
+*/
+
+func deleteService(id int) {
+	deleteStatement := "DELETE FROM mst_layanan WHERE id=$1;"
 
 	db := connectDb()
 	defer db.Close()
