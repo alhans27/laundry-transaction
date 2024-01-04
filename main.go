@@ -248,12 +248,15 @@ func displayAllService() {
 	var choice string
 	services := entity.GetAllService()
 	fmt.Println()
-	fmt.Println("|\t\t\t\tLAYANAN ENIGMA LAUNDRY\t\t\t\t\t|")
-	fmt.Println("\t\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-	fmt.Print("| No \t| Nama Layanan \t\t\t| Harga \t| Satuan \t|\n")
+	fmt.Println("|\t\t\tLAYANAN ENIGMA LAUNDRY\t\t\t|")
+	fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+	t.AppendHeader(table.Row{"No", "Nama Layanan", "Harga", "Satuan"})
 	for i, serv := range services {
-		fmt.Printf("| %d \t| %s \t\t| %d \t\t| %s \t\t|\n", i+1, serv.ServiceName, serv.Price, serv.Unit)
+		t.AppendRow([]interface{}{i + 1, serv.ServiceName, serv.Price, serv.Unit})
 	}
+	t.Render()
+
 	fmt.Println()
 
 	for choice != "Y" && choice != "y" || choice != "N" && choice != "n" {
