@@ -1,28 +1,23 @@
 package main
 
 import (
-	"database/sql"
 	"enigma-laundry/entity"
 	"fmt"
+	"os"
 
-	_ "github.com/lib/pq"
+	"github.com/jedib0t/go-pretty/v6/table"
 )
 
-const (
-	host   = "localhost"
-	port   = 5432
-	user   = "postgres"
-	pass   = "7678473"
-	dbname = "enigma_laundry"
-)
+var isRun = true
 
-var psqlInfo = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, pass, dbname)
+var t = table.NewWriter()
 
 func main() {
+	t.SetOutputMirror(os.Stdout)
 	/*
 		================================== DEBUGING ONLY ==================================
 	*/
-	// customer := entity.Customer{Id: 4, Name: "Alhans", Phone: "081256783902", Address: "Jepara"}
+	// customer := entity.Customer{Id: 4, Name: "Alhans", Phone: "081256783902", Address: "Surakarta"}
 	// employer := entity.Employer{Id: 4, Name: "Alhans", Phone: "089765456324", Address: "Surakarta"}
 	// layanan := entity.Layanan{Id: 7, ServiceName: "Laundry Gorden", Price: 30000, Unit: "Buah"}
 	// fmt.Println(customer)
@@ -31,11 +26,14 @@ func main() {
 
 	// fmt.Println(connectDb())
 
-	// customers := getAllCustomer()
+	// entity.AddCustomer(customer)
+	// entity.UpdateCustomer(customer)
+	// entity.DeleteCustomer(4)
 
-	// addCustomer(customer)
-	// updateCustomer(customer)
-	// deleteCustomer(4)
+	// customers := entity.GetAllCustomer()
+	// for _, x := range customers {
+	// 	fmt.Println(x)
+	// }
 
 	// addEmployer(employer)
 	// updateEmployer(employer)
@@ -70,553 +68,202 @@ func main() {
 	/*
 		================================== [END] DEBUGING ONLY ==================================
 	*/
-}
 
-/*
-================================== CONNECT DB FUNCTION ==================================
--> Koneksi ke Database PLSQL
-*/
-
-func connectDb() *sql.DB {
-	db, err := sql.Open("postgres", psqlInfo)
-
-	if err != nil {
-		panic(err)
-	}
-
-	err = db.Ping()
-
-	if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("Successfully Connected!")
-	}
-
-	return db
-}
-
-/*
-================================== SCAN CUSTOMER FUNCTION ==================================
--> Mengambil data Customer dari hasil db.Query() dan memasukkannya ke dalam Array Struct
-*/
-
-func scanCustomer(rows *sql.Rows) []entity.Customer {
-	customers := []entity.Customer{}
-	var err error
-
-	for rows.Next() {
-		customer := entity.Customer{}
-		err := rows.Scan(&customer.Id, &customer.Name, &customer.Phone, &customer.Address)
-
-		if err != nil {
-			panic(err)
+	for isRun {
+		choice := displayMainMenu()
+		switch choice {
+		case "1":
+			choice = displayCustomerMenu()
+			switch choice {
+			case "1":
+				displayAllCustomer()
+			}
+		case "2":
+			choice = displayEmployerMenu()
+			switch choice {
+			case "1":
+				displayAllEmployer()
+			}
+		case "3":
+			choice = displayServiceMenu()
+			switch choice {
+			case "1":
+				displayAllService()
+			}
+		case "4":
+			displayTransactionMenu()
+		case "5":
+			isRun = false
 		}
-
-		customers = append(customers, customer)
 	}
-
-	err = rows.Err()
-	if err != nil {
-		panic(err)
-	}
-
-	return customers
 }
 
-/*
-================================== SCAN EMPLOYER FUNCTION ==================================
--> Mengambil data Employer dari hasil db.Query() dan memasukkannya ke dalam Array Struct
-*/
+func displayMainMenu() string {
+	var choice string
+	fmt.Println("======================================================================")
+	fmt.Println("====                        ENIGMA LAUNDRY                        ====")
+	fmt.Println("======================================================================")
+	fmt.Println("|||      MAIN MENU      |||")
+	fmt.Println("---------------------------")
+	fmt.Println("1. Data Customer")
+	fmt.Println("2. Data Karyawan")
+	fmt.Println("3. Data Layanan")
+	fmt.Println("4. Data Transaksi")
+	fmt.Println("5. Exit")
+	fmt.Println("-----------------------------------")
+	fmt.Print("Menu yang Anda Pilih? ")
+	fmt.Scan(&choice)
+	fmt.Println()
 
-func scanEmployer(rows *sql.Rows) []entity.Employer {
-	employers := []entity.Employer{}
-	var err error
+	return choice
+}
 
-	for rows.Next() {
-		employer := entity.Employer{}
-		err := rows.Scan(&employer.Id, &employer.Name, &employer.Phone, &employer.Address)
+func displayCustomerMenu() string {
+	var choice string
+	fmt.Println("||      CUSTOMER MENU      ||")
+	fmt.Println("---------------------------")
+	fmt.Println("1. Lihat Data Customer")
+	fmt.Println("2. Tambah Data Customer")
+	fmt.Println("3. Update Data Customer")
+	fmt.Println("4. Delete Data Customer")
+	fmt.Println("5. Back to Main Menu")
+	fmt.Println("-----------------------------------")
+	fmt.Print("Menu yang Anda Pilih? ")
+	fmt.Scan(&choice)
+	fmt.Println()
 
-		if err != nil {
-			panic(err)
+	return choice
+}
+
+func displayEmployerMenu() string {
+	var choice string
+	fmt.Println("||      EMPLOYER MENU      ||")
+	fmt.Println("---------------------------")
+	fmt.Println("1. Lihat Data Karyawan")
+	fmt.Println("2. Tambah Data Karyawan")
+	fmt.Println("3. Update Data Karyawan")
+	fmt.Println("4. Delete Data Karyawan")
+	fmt.Println("5. Back to Main Menu")
+	fmt.Println("-----------------------------------")
+	fmt.Print("Menu yang Anda Pilih? ")
+	fmt.Scan(&choice)
+	fmt.Println()
+
+	return choice
+}
+
+func displayServiceMenu() string {
+	var choice string
+	fmt.Println("||      SERVICE MENU      ||")
+	fmt.Println("---------------------------")
+	fmt.Println("1. Lihat Data Layanan")
+	fmt.Println("2. Tambah Data Layanan")
+	fmt.Println("3. Update Data Layanan")
+	fmt.Println("4. Delete Data Layanan")
+	fmt.Println("5. Back to Main Menu")
+	fmt.Println("-----------------------------------")
+	fmt.Print("Menu yang Anda Pilih? ")
+	fmt.Scan(&choice)
+	fmt.Println()
+
+	return choice
+}
+
+func displayTransactionMenu() string {
+	var choice string
+	fmt.Println("||      TRANSACTION MENU      ||")
+	fmt.Println("---------------------------")
+	fmt.Println("1. Lihat Semua Data Transaksi")
+	fmt.Println("2. Tambah Data Transaksi")
+	fmt.Println("3. Back to Main Menu")
+	fmt.Println("-----------------------------------")
+	fmt.Print("Menu yang Anda Pilih? ")
+	fmt.Scan(&choice)
+	fmt.Println()
+
+	return choice
+}
+
+func displayAllCustomer() {
+	var choice string
+	customers := entity.GetAllCustomer()
+	fmt.Println()
+	fmt.Println("|\t\t\tCUSTOMER ENIGMA LAUNDRY\t\t\t|")
+	fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+	t.AppendHeader(table.Row{"No", "Nama Customer", "Customer Id", "Nomor Handphone", "Alamat"})
+	for i, cust := range customers {
+		t.AppendRow([]interface{}{i + 1, cust.Name, cust.Id, cust.Phone, cust.Address})
+	}
+	t.Render()
+
+	fmt.Println()
+
+	for choice != "Y" && choice != "y" || choice != "N" && choice != "n" {
+		fmt.Print("Back to Main Menu? (Y/n)\n")
+		fmt.Scan(&choice)
+		if choice == "Y" || choice == "y" {
+			isRun = true
+			break
+		} else if choice == "N" || choice == "n" {
+			isRun = false
+			break
+		} else {
+			fmt.Println("Anda menginputkan pilihan yang salah. Coba lagi!")
 		}
-
-		employers = append(employers, employer)
 	}
-
-	err = rows.Err()
-	if err != nil {
-		panic(err)
-	}
-
-	return employers
 }
 
-/*
-================================== SCAN SERVICE FUNCTION ==================================
--> Mengambil data Layanan dari hasil db.Query() dan memasukkannya ke dalam Array Struct
-*/
+func displayAllEmployer() {
+	var choice string
+	employers := entity.GetAllEmployer()
+	fmt.Println()
+	fmt.Println("|\t\t\t\tKARYAWAN ENIGMA LAUNDRY\t\t\t\t\t|")
+	fmt.Println("\t\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+	fmt.Print("| No \t| Nama Karyawan \t| Karyawan Id \t| Nomor Handphone \t| Alamat \t|\n")
+	for i, emp := range employers {
+		fmt.Printf("| %d \t| %s \t\t| %d \t\t| %s \t\t| %s \t|\n", i+1, emp.Name, emp.Id, emp.Phone, emp.Address)
+	}
+	fmt.Println()
 
-func scanService(rows *sql.Rows) []entity.Layanan {
-	services := []entity.Layanan{}
-	var err error
-
-	for rows.Next() {
-		service := entity.Layanan{}
-		err := rows.Scan(&service.Id, &service.ServiceName, &service.Price, &service.Unit)
-
-		if err != nil {
-			panic(err)
+	for choice != "Y" && choice != "y" || choice != "N" && choice != "n" {
+		fmt.Print("Back to Main Menu? (Y/n)\n")
+		fmt.Scan(&choice)
+		if choice == "Y" || choice == "y" {
+			isRun = true
+			break
+		} else if choice == "N" || choice == "n" {
+			isRun = false
+			break
+		} else {
+			fmt.Println("Anda menginputkan pilihan yang salah. Coba lagi!")
 		}
-
-		services = append(services, service)
 	}
-
-	err = rows.Err()
-	if err != nil {
-		panic(err)
-	}
-
-	return services
 }
 
-/*
-================================== SCAN TRANSACTION FUNCTION ==================================
--> Mengambil data Transaksi dari hasil db.Query() dan memasukkannya ke dalam Array Struct
-*/
+func displayAllService() {
+	var choice string
+	services := entity.GetAllService()
+	fmt.Println()
+	fmt.Println("|\t\t\t\tLAYANAN ENIGMA LAUNDRY\t\t\t\t\t|")
+	fmt.Println("\t\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+	fmt.Print("| No \t| Nama Layanan \t\t\t| Harga \t| Satuan \t|\n")
+	for i, serv := range services {
+		fmt.Printf("| %d \t| %s \t\t| %d \t\t| %s \t\t|\n", i+1, serv.ServiceName, serv.Price, serv.Unit)
+	}
+	fmt.Println()
 
-func scanTransaction(rows *sql.Rows) []entity.Transaksi {
-	transactions := []entity.Transaksi{}
-	var err error
-
-	for rows.Next() {
-		transaction := entity.Transaksi{}
-		err := rows.Scan(&transaction.Id, &transaction.DateIn, &transaction.DateOut, &transaction.NoTransaction, &transaction.CustomerId, &transaction.CustomerName, &transaction.CustomerPhone, &transaction.EmployerId, &transaction.EmployerName)
-
-		if err != nil {
-			panic(err)
+	for choice != "Y" && choice != "y" || choice != "N" && choice != "n" {
+		fmt.Print("Back to Main Menu? (Y/n)\n")
+		fmt.Scan(&choice)
+		if choice == "Y" || choice == "y" {
+			isRun = true
+			break
+		} else if choice == "N" || choice == "n" {
+			isRun = false
+			break
+		} else {
+			fmt.Println("Anda menginputkan pilihan yang salah. Coba lagi!")
 		}
-
-		transactions = append(transactions, transaction)
-	}
-
-	err = rows.Err()
-	if err != nil {
-		panic(err)
-	}
-
-	return transactions
-}
-
-/*
-================================== SCAN DETAIL TRANSACTION FUNCTION ==================================
--> Mengambil data Detail Transaksi dari hasil db.Query() dan memasukkannya ke dalam Array Struct
-*/
-
-func scanDetailTransaction(rows *sql.Rows) []entity.DetailTransaksi {
-	arrays := []entity.DetailTransaksi{}
-	var err error
-
-	for rows.Next() {
-		detailTrx := entity.DetailTransaksi{}
-		err := rows.Scan(&detailTrx.Id, &detailTrx.ServiceId, &detailTrx.ServiceName, &detailTrx.Price, &detailTrx.Unit, &detailTrx.Quantity, &detailTrx.TotalPrice)
-
-		if err != nil {
-			panic(err)
-		}
-
-		arrays = append(arrays, detailTrx)
-	}
-
-	err = rows.Err()
-	if err != nil {
-		panic(err)
-	}
-
-	return arrays
-}
-
-/*
-================================== GET ALL CUSTOMER FUNCTION ==================================
--> Mengambil semua data Customer dari tabel mst_customer
--> Mengembalikan nilai berupa Array Struct of Customer
-*/
-
-func getAllCustomer() []entity.Customer {
-	selectStatement := "SELECT id, name, phone, address FROM mst_customer"
-
-	db := connectDb()
-	defer db.Close()
-	var err error
-
-	rows, err := db.Query(selectStatement)
-
-	if err != nil {
-		panic(err)
-	}
-	defer rows.Close()
-	customers := scanCustomer(rows)
-	return customers
-}
-
-/*
-================================== GET ALL EMPLOYER FUNCTION ==================================
--> Mengambil semua data Employer dari tabel mst_employer
--> Mengembalikan nilai berupa Array Struct of Employer
-*/
-
-func getAllEmployer() []entity.Employer {
-	selectStatement := "SELECT id, name, phone, address FROM mst_employer"
-
-	db := connectDb()
-	defer db.Close()
-	var err error
-
-	rows, err := db.Query(selectStatement)
-
-	if err != nil {
-		panic(err)
-	}
-	defer rows.Close()
-	employers := scanEmployer(rows)
-	return employers
-}
-
-/*
-================================== GET ALL SERVICE FUNCTION ==================================
--> Mengambil semua data Layanan dari tabel mst_layanan
--> Mengembalikan nilai berupa Array Struct of Layanan
-*/
-
-func getAllService() []entity.Layanan {
-	selectStatement := "SELECT id, service_name, price, unit FROM mst_layanan"
-
-	db := connectDb()
-	defer db.Close()
-	var err error
-
-	rows, err := db.Query(selectStatement)
-
-	if err != nil {
-		panic(err)
-	}
-	defer rows.Close()
-	services := scanService(rows)
-	return services
-}
-
-/*
-================================== GET ALL TRANSACTION FUNCTION ==================================
--> Mengambil semua data Transaksi
--> Menggabungkan Tabel trx_bill, mst_customer dan mst_employer
-*/
-
-func getAllTransaction() []entity.Transaksi {
-	selectStatement := `SELECT  
-t.id,
-t.date_in,
-t.date_out,
-t.no_trx,
-t.customer_id,
-c.name as customer_name,
-c.phone as customer_phone,
-t.employer_id,
-e.name as employer_name
-FROM trx_bill as t
-JOIN mst_customer as c ON t.customer_id = c.id
-JOIN mst_employer as e ON t.employer_id = e.id;`
-
-	db := connectDb()
-	defer db.Close()
-	var err error
-
-	rows, err := db.Query(selectStatement)
-
-	if err != nil {
-		panic(err)
-	}
-	defer rows.Close()
-	transactions := scanTransaction(rows)
-	return transactions
-}
-
-/*
-================================== GET DETAIL TRANSACTION FUNCTION ==================================
--> Mengambil detail data Transaksi tertentu berdasarkan Id Transaksi
--> Menggabungkan Tabel trx_bill_detail dan mst_layanan
-*/
-
-func getDetailTransaction(id int) []entity.DetailTransaksi {
-	selectStatement := `SELECT
-td.trx_bill_id as transaction_id,
-td.service_id,
-l.service_name,
-l.price,
-l.unit,
-td.quantity,
-SUM(l.price*td.quantity) as total
-FROM trx_bill_detail as td
-JOIN mst_layanan as l ON td.service_id = l.id
-WHERE td.trx_bill_id = $1
-GROUP BY td.trx_bill_id, td.service_id, l.service_name, l.price, l.unit, td.quantity;`
-
-	db := connectDb()
-	defer db.Close()
-	var err error
-
-	rows, err := db.Query(selectStatement, id)
-
-	if err != nil {
-		panic(err)
-	}
-	defer rows.Close()
-	detailTrx := scanDetailTransaction(rows)
-	return detailTrx
-}
-
-/*
-================================== ADD CUSTOMER FUNCTION ==================================
--> Menambah Data Customer Baru
--> Menggunakan tabel mst_customer
-*/
-
-func addCustomer(customer entity.Customer) {
-	insertStatement := "INSERT INTO mst_customer (id, name, phone, address) VALUES ($1, $2, $3, $4);"
-
-	db := connectDb()
-	defer db.Close()
-	var err error
-
-	_, err = db.Exec(insertStatement, customer.Id, customer.Name, customer.Phone, customer.Address)
-
-	if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("Successfully Insert Data!")
-	}
-}
-
-/*
-================================== UPDATE CUSTOMER FUNCTION ==================================
--> Mengubah Data Customer Berdasarkan Id
--> Menggunakan tabel mst_customer
-*/
-
-func updateCustomer(customer entity.Customer) {
-	updateStatement := "UPDATE mst_customer SET name = $2, phone=$3, address=$4 WHERE id=$1;"
-
-	db := connectDb()
-	defer db.Close()
-	var err error
-
-	_, err = db.Exec(updateStatement, customer.Id, customer.Name, customer.Phone, customer.Address)
-
-	if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("Successfully Update Data!")
-	}
-}
-
-/*
-================================== DELETE CUSTOMER FUNCTION ==================================
--> Menghapus Data Customer Berdasarkan Id
--> Menggunakan tabel mst_customer
-*/
-
-func deleteCustomer(id int) {
-	deleteStatement := "DELETE FROM mst_customer WHERE id=$1;"
-
-	db := connectDb()
-	defer db.Close()
-	var err error
-
-	_, err = db.Exec(deleteStatement, id)
-
-	if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("Successfully Delete Data!")
-	}
-}
-
-/*
-================================== ADD EMPLOYER FUNCTION ==================================
--> Menambah Data Employer Baru
--> Menggunakan tabel mst_employer
-*/
-
-func addEmployer(employer entity.Employer) {
-	insertStatement := "INSERT INTO mst_employer (id, name, phone, address) VALUES ($1, $2, $3, $4);"
-
-	db := connectDb()
-	defer db.Close()
-	var err error
-
-	_, err = db.Exec(insertStatement, employer.Id, employer.Name, employer.Phone, employer.Address)
-
-	if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("Successfully Insert Data!")
-	}
-}
-
-/*
-================================== UPDATE EMPLOYER FUNCTION ==================================
--> Mengubah Data Employer Berdasarkan Id
--> Menggunakan tabel mst_employer
-*/
-
-func updateEmployer(employer entity.Employer) {
-	updateStatement := "UPDATE mst_employer SET name = $2, phone=$3, address=$4 WHERE id=$1;"
-
-	db := connectDb()
-	defer db.Close()
-	var err error
-
-	_, err = db.Exec(updateStatement, employer.Id, employer.Name, employer.Phone, employer.Address)
-
-	if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("Successfully Update Data!")
-	}
-}
-
-/*
-================================== DELETE EMPLOYER FUNCTION ==================================
--> Menghapus Data Employer Berdasarkan Id
--> Menggunakan tabel mst_employer
-*/
-
-func deleteEmployer(id int) {
-	deleteStatement := "DELETE FROM mst_employer WHERE id=$1;"
-
-	db := connectDb()
-	defer db.Close()
-	var err error
-
-	_, err = db.Exec(deleteStatement, id)
-
-	if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("Successfully Delete Data!")
-	}
-}
-
-/*
-================================== ADD SERVICE FUNCTION ==================================
--> Menambah Data Layanan Baru
--> Menggunakan tabel mst_layanan
-*/
-
-func addService(service entity.Layanan) {
-	insertStatement := "INSERT INTO mst_layanan (id, service_name, price, unit) VALUES ($1, $2, $3, $4);"
-
-	db := connectDb()
-	defer db.Close()
-	var err error
-
-	_, err = db.Exec(insertStatement, service.Id, service.ServiceName, service.Price, service.Unit)
-
-	if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("Successfully Insert Data!")
-	}
-}
-
-/*
-================================== UPDATE SERVICE FUNCTION ==================================
--> Mengubah Data Layanan Berdasarkan Id
--> Menggunakan tabel mst_layanan
-*/
-
-func updateService(service entity.Layanan) {
-	updateStatement := "UPDATE mst_layanan SET service_name = $2, price=$3, unit=$4 WHERE id=$1;"
-
-	db := connectDb()
-	defer db.Close()
-	var err error
-
-	_, err = db.Exec(updateStatement, service.Id, service.ServiceName, service.Price, service.Unit)
-
-	if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("Successfully Update Data!")
-	}
-}
-
-/*
-================================== DELETE SERVICE FUNCTION ==================================
--> Menghapus Data Layanan Berdasarkan Id
--> Menggunakan tabel mst_layanan
-*/
-
-func deleteService(id int) {
-	deleteStatement := "DELETE FROM mst_layanan WHERE id=$1;"
-
-	db := connectDb()
-	defer db.Close()
-	var err error
-
-	_, err = db.Exec(deleteStatement, id)
-
-	if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("Successfully Delete Data!")
-	}
-}
-
-func makeTransaction(transaction entity.Transaksi, detailTrx []entity.DetailTransaksi) {
-	db := connectDb()
-	defer db.Close()
-
-	tx, err := db.Begin()
-
-	if err != nil {
-		panic(err)
-	}
-
-	insertTransaction(transaction, tx)
-	insertDetailTransaction(detailTrx, transaction, tx)
-
-	err = tx.Commit()
-
-	if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("Transaction Commited!")
-	}
-}
-
-func insertTransaction(transaction entity.Transaksi, tx *sql.Tx) {
-	insertStatement := "INSERT INTO trx_bill (id, no_trx, date_in, date_out, customer_id, employer_id) VALUES ($1, $2, $3, $4, $5, $6);"
-
-	_, err := tx.Exec(insertStatement, transaction.Id, transaction.NoTransaction, transaction.DateIn, transaction.DateOut, transaction.CustomerId, transaction.EmployerId)
-
-	validate(err, "Insert Transaction", tx)
-}
-
-func insertDetailTransaction(detailTrx []entity.DetailTransaksi, transaction entity.Transaksi, tx *sql.Tx) {
-	insertStatement := "INSERT INTO trx_bill_detail (id, service_id, quantity, trx_bill_id) VALUES ($1, $2, $3, $4);"
-
-	for _, trx := range detailTrx {
-		_, err := tx.Exec(insertStatement, trx.Id, trx.ServiceId, trx.Quantity, transaction.Id)
-
-		validate(err, "Insert Detail Transaction", tx)
-	}
-	fmt.Println("Successfully Insert All Detail Transaction")
-}
-
-func validate(err error, message string, tx *sql.Tx) {
-	if err != nil {
-		tx.Rollback()
-		fmt.Println(err, "Transaction Rollback!")
-	} else {
-		fmt.Println("Successfully " + message + " Data!")
 	}
 }
