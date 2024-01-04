@@ -1,9 +1,11 @@
 package main
 
 import (
+	// "bufio"
 	"enigma-laundry/entity"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -12,6 +14,8 @@ import (
 var isRun = true
 
 var t = table.NewWriter()
+
+// var scanner = bufio.NewScanner(os.Stdin)
 
 func main() {
 	t.SetOutputMirror(os.Stdout)
@@ -307,8 +311,8 @@ func displayAllTransaction() {
 		fmt.Scan(&choice)
 		if choice == "Y" || choice == "y" {
 			isRun = true
-			fmt.Print("Masukkan Id Transaksi? ")
-			fmt.Scan(&choice)
+			displayDetailTransaction()
+			break
 		} else if choice == "N" || choice == "n" {
 			isRun = true
 			break
@@ -316,4 +320,34 @@ func displayAllTransaction() {
 			fmt.Println("Anda menginputkan pilihan yang salah. Coba lagi!")
 		}
 	}
+}
+
+func displayDetailTransaction() {
+	var choice string
+	var totalHarga int
+
+	fmt.Print("Masukkan Id Transaksi? ")
+	fmt.Scan(&choice)
+	id, err := strconv.Atoi(choice)
+
+	if err != nil {
+		panic(err)
+	}
+
+	arrays := entity.GetDetailTransaction(id)
+
+	fmt.Println()
+	fmt.Println("|\t\t\tDETAIL TRANSAKSI ENIGMA LAUNDRY\t\t\t|")
+	fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+	t.AppendHeader(table.Row{"No", "Nama Layanan", "Harga", "Satuan", "Jumlah", "Total"})
+
+	for i, trx := range arrays {
+		totalHarga += trx.TotalPrice
+		t.AppendRow([]interface{}{i + 1, trx.ServiceName, trx.Price, trx.Unit, trx.Quantity, trx.TotalPrice})
+	}
+
+	t.AppendFooter(table.Row{"", "", "", "", "Total", totalHarga})
+
+	t.Render()
 }
