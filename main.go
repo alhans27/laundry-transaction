@@ -23,7 +23,7 @@ func main() {
 		================================== DEBUGING ONLY ==================================
 	*/
 	// customer := entity.Customer{Id: 4, Name: "Alhans", Phone: "081256783902", Address: "Jepara"}
-	// employer := entity.Employer{Id: 1, Name: "Mirna", Phone: "089765456324", Address: "Surabaya"}
+	// employer := entity.Employer{Id: 4, Name: "Alhans", Phone: "089765456324", Address: "Surakarta"}
 	// layanan := entity.Layanan{Id: 1, ServiceName: "Cuci", Price: 5000, Unit: "KG"}
 	// fmt.Println(customer)
 	// fmt.Println(employer)
@@ -35,9 +35,13 @@ func main() {
 
 	// addCustomer(customer)
 	// updateCustomer(customer)
-	deleteCustomer(4)
+	// deleteCustomer(4)
 
-	arrays := getAllCustomer()
+	// addEmployer(employer)
+	// updateEmployer(employer)
+	deleteEmployer(4)
+
+	arrays := getAllEmployer()
 	for _, x := range arrays {
 		fmt.Println(x)
 	}
@@ -47,7 +51,7 @@ func main() {
 }
 
 /*
-== CONNECT DB FUNCTION ==
+================================== CONNECT DB FUNCTION ==================================
 -> Koneksi ke Database PLSQL
 */
 
@@ -70,7 +74,7 @@ func connectDb() *sql.DB {
 }
 
 /*
-== SCAN CUSTOMER FUNCTION ==
+================================== SCAN CUSTOMER FUNCTION ==================================
 -> Mengambil data Customer dari hasil db.Query() dan memasukkannya ke dalam Array Struct
 */
 
@@ -98,7 +102,7 @@ func scanCustomer(rows *sql.Rows) []entity.Customer {
 }
 
 /*
-== SCAN EMPLOYER FUNCTION ==
+================================== SCAN EMPLOYER FUNCTION ==================================
 -> Mengambil data Employer dari hasil db.Query() dan memasukkannya ke dalam Array Struct
 */
 
@@ -126,7 +130,7 @@ func scanEmployer(rows *sql.Rows) []entity.Employer {
 }
 
 /*
-== SCAN SERVICE FUNCTION ==
+================================== SCAN SERVICE FUNCTION ==================================
 -> Mengambil data Layanan dari hasil db.Query() dan memasukkannya ke dalam Array Struct
 */
 
@@ -154,7 +158,7 @@ func scanService(rows *sql.Rows) []entity.Layanan {
 }
 
 /*
-== GET ALL CUSTOMER FUNCTION ==
+================================== GET ALL CUSTOMER FUNCTION ==================================
 -> Mengambil semua data Customer dari tabel mst_customer
 -> Mengembalikan nilai berupa Array Struct of Customer
 */
@@ -177,7 +181,7 @@ func getAllCustomer() []entity.Customer {
 }
 
 /*
-== GET ALL EMPLOYER FUNCTION ==
+================================== GET ALL EMPLOYER FUNCTION ==================================
 -> Mengambil semua data Employer dari tabel mst_employer
 -> Mengembalikan nilai berupa Array Struct of Employer
 */
@@ -200,7 +204,7 @@ func getAllEmployer() []entity.Employer {
 }
 
 /*
-== GET ALL SERVICE FUNCTION ==
+================================== GET ALL SERVICE FUNCTION ==================================
 -> Mengambil semua data Layanan dari tabel mst_layanan
 -> Mengembalikan nilai berupa Array Struct of Layanan
 */
@@ -223,7 +227,7 @@ func getAllService() []entity.Layanan {
 }
 
 /*
-== ADD CUSTOMER FUNCTION ==
+================================== ADD CUSTOMER FUNCTION ==================================
 -> Menambah Data Customer Baru
 -> Menggunakan tabel mst_customer
 */
@@ -245,7 +249,7 @@ func addCustomer(customer entity.Customer) {
 }
 
 /*
-== UPDATE CUSTOMER FUNCTION ==
+================================== UPDATE CUSTOMER FUNCTION ==================================
 -> Mengubah Data Customer Berdasarkan Id
 -> Menggunakan tabel mst_customer
 */
@@ -267,13 +271,79 @@ func updateCustomer(customer entity.Customer) {
 }
 
 /*
-== DELETE CUSTOMER FUNCTION ==
+================================== DELETE CUSTOMER FUNCTION ==================================
 -> Menghapus Data Customer Berdasarkan Id
 -> Menggunakan tabel mst_customer
 */
 
 func deleteCustomer(id int) {
 	deleteStatement := "DELETE FROM mst_customer WHERE id=$1;"
+
+	db := connectDb()
+	defer db.Close()
+	var err error
+
+	_, err = db.Exec(deleteStatement, id)
+
+	if err != nil {
+		panic(err)
+	} else {
+		fmt.Println("Successfully Delete Data!")
+	}
+}
+
+/*
+================================== ADD EMPLOYER FUNCTION ==================================
+-> Menambah Data Employer Baru
+-> Menggunakan tabel mst_employer
+*/
+
+func addEmployer(employer entity.Employer) {
+	insertStatement := "INSERT INTO mst_employer (id, name, phone, address) VALUES ($1, $2, $3, $4);"
+
+	db := connectDb()
+	defer db.Close()
+	var err error
+
+	_, err = db.Exec(insertStatement, employer.Id, employer.Name, employer.Phone, employer.Address)
+
+	if err != nil {
+		panic(err)
+	} else {
+		fmt.Println("Successfully Insert Data!")
+	}
+}
+
+/*
+================================== UPDATE EMPLOYER FUNCTION ==================================
+-> Mengubah Data Employer Berdasarkan Id
+-> Menggunakan tabel mst_employer
+*/
+
+func updateEmployer(employer entity.Employer) {
+	updateStatement := "UPDATE mst_employer SET name = $2, phone=$3, address=$4 WHERE id=$1;"
+
+	db := connectDb()
+	defer db.Close()
+	var err error
+
+	_, err = db.Exec(updateStatement, employer.Id, employer.Name, employer.Phone, employer.Address)
+
+	if err != nil {
+		panic(err)
+	} else {
+		fmt.Println("Successfully Update Data!")
+	}
+}
+
+/*
+================================== DELETE EMPLOYER FUNCTION ==================================
+-> Menghapus Data Employer Berdasarkan Id
+-> Menggunakan tabel mst_employer
+*/
+
+func deleteEmployer(id int) {
+	deleteStatement := "DELETE FROM mst_employer WHERE id=$1;"
 
 	db := connectDb()
 	defer db.Close()
