@@ -218,12 +218,15 @@ func displayAllEmployer() {
 	var choice string
 	employers := entity.GetAllEmployer()
 	fmt.Println()
-	fmt.Println("|\t\t\t\tKARYAWAN ENIGMA LAUNDRY\t\t\t\t\t|")
-	fmt.Println("\t\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-	fmt.Print("| No \t| Nama Karyawan \t| Karyawan Id \t| Nomor Handphone \t| Alamat \t|\n")
+	fmt.Println("|\t\t\tKARYAWAN ENIGMA LAUNDRY\t\t\t|")
+	fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+	t.AppendHeader(table.Row{"No", "Nama Karyawan", "Karyawan Id", "Nomor Handphone", "Alamat"})
 	for i, emp := range employers {
-		fmt.Printf("| %d \t| %s \t\t| %d \t\t| %s \t\t| %s \t|\n", i+1, emp.Name, emp.Id, emp.Phone, emp.Address)
+		t.AppendRow([]interface{}{i + 1, emp.Name, emp.Id, emp.Phone, emp.Address})
 	}
+	t.Render()
+
 	fmt.Println()
 
 	for choice != "Y" && choice != "y" || choice != "N" && choice != "n" {
