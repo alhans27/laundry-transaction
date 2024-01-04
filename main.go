@@ -4,6 +4,7 @@ import (
 	"enigma-laundry/entity"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 )
@@ -91,7 +92,11 @@ func main() {
 				displayAllService()
 			}
 		case "4":
-			displayTransactionMenu()
+			choice = displayTransactionMenu()
+			switch choice {
+			case "1":
+				displayAllTransaction()
+			}
 		case "5":
 			isRun = false
 		}
@@ -267,6 +272,45 @@ func displayAllService() {
 			break
 		} else if choice == "N" || choice == "n" {
 			isRun = false
+			break
+		} else {
+			fmt.Println("Anda menginputkan pilihan yang salah. Coba lagi!")
+		}
+	}
+}
+
+func displayAllTransaction() {
+	var choice string
+	transactions := entity.GetAllTransaction()
+	fmt.Println()
+	fmt.Println("|\t\t\tTRANSAKSI ENIGMA LAUNDRY\t\t\t|")
+	fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+	t.AppendHeader(table.Row{"No", "Tanggal Masuk", "Tanggal Keluar", "Nomor Transaksi", "Diterima Oleh", "Nama Customer", "No Hp Customer"})
+	for i, trx := range transactions {
+		dateIn, err := time.Parse("2006-01-02T15:04:05Z", trx.DateIn)
+		dateOut, err := time.Parse("2006-01-02T15:04:05Z", trx.DateOut)
+		if err != nil {
+			fmt.Println("Error parsing date:", err)
+			return
+		}
+		trx.DateIn = dateIn.Format("2006-01-02")
+		trx.DateOut = dateOut.Format("2006-01-02")
+		t.AppendRow([]interface{}{i + 1, trx.DateIn, trx.DateOut, trx.NoTransaction, trx.EmployerName, trx.CustomerName, trx.CustomerPhone})
+	}
+	t.Render()
+
+	fmt.Println()
+
+	for choice != "Y" && choice != "y" || choice != "N" && choice != "n" {
+		fmt.Print("Ingin Melihat Detail Transaksi? (Y/n)\n")
+		fmt.Scan(&choice)
+		if choice == "Y" || choice == "y" {
+			isRun = true
+			fmt.Print("Masukkan Id Transaksi? ")
+			fmt.Scan(&choice)
+		} else if choice == "N" || choice == "n" {
+			isRun = true
 			break
 		} else {
 			fmt.Println("Anda menginputkan pilihan yang salah. Coba lagi!")
