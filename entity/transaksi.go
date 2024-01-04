@@ -14,6 +14,7 @@ type Transaksi struct {
 
 type DetailTransaksi struct {
 	Id          int
+	ServiceId   int
 	ServiceName string
 	Price       int
 	Unit        string

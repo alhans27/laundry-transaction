@@ -45,15 +45,27 @@ func main() {
 	// updateService(layanan)
 	// deleteService(7)
 
-	arrays1 := getAllTransaction()
-	for _, x := range arrays1 {
-		fmt.Println(x)
-		arrays2 := getDetailTransaction(x.Id)
-		for _, y := range arrays2 {
-			fmt.Println(y)
-		}
-		fmt.Println("========================================")
-	}
+	// arrays1 := getAllTransaction()
+	// for _, x := range arrays1 {
+	// 	fmt.Println(x)
+	// 	arrays2 := getDetailTransaction(x.Id)
+	// 	for _, y := range arrays2 {
+	// 		fmt.Println(y)
+	// 	}
+	// 	fmt.Println("========================================")
+	// }
+
+	// transaction := entity.Transaksi{Id: 3, NoTransaction: "23456", DateIn: "2024-01-04", DateOut: "2024-01-07", CustomerId: 2, EmployerId: 2}
+
+	// var arrays = []entity.DetailTransaksi{
+	// 	{Id: 7, ServiceId: 3, Quantity: 2},
+	// 	{Id: 8, ServiceId: 1, Quantity: 3},
+	// 	{Id: 9, ServiceId: 2, Quantity: 1},
+	// 	{Id: 10, ServiceId: 6, Quantity: 4},
+	// }
+	// arrays = append(arrays, detailTrx)
+
+	// makeTransaction(transaction, arrays)
 
 	/*
 		================================== [END] DEBUGING ONLY ==================================
@@ -206,7 +218,7 @@ func scanDetailTransaction(rows *sql.Rows) []entity.DetailTransaksi {
 
 	for rows.Next() {
 		detailTrx := entity.DetailTransaksi{}
-		err := rows.Scan(&detailTrx.Id, &detailTrx.ServiceName, &detailTrx.Price, &detailTrx.Unit, &detailTrx.Quantity, &detailTrx.TotalPrice)
+		err := rows.Scan(&detailTrx.Id, &detailTrx.ServiceId, &detailTrx.ServiceName, &detailTrx.Price, &detailTrx.Unit, &detailTrx.Quantity, &detailTrx.TotalPrice)
 
 		if err != nil {
 			panic(err)
@@ -336,6 +348,7 @@ JOIN mst_employer as e ON t.employer_id = e.id;`
 func getDetailTransaction(id int) []entity.DetailTransaksi {
 	selectStatement := `SELECT
 td.trx_bill_id as transaction_id,
+td.service_id,
 l.service_name,
 l.price,
 l.unit,
@@ -344,7 +357,7 @@ SUM(l.price*td.quantity) as total
 FROM trx_bill_detail as td
 JOIN mst_layanan as l ON td.service_id = l.id
 WHERE td.trx_bill_id = $1
-GROUP BY td.trx_bill_id, l.service_name, l.price, l.unit, td.quantity;`
+GROUP BY td.trx_bill_id, td.service_id, l.service_name, l.price, l.unit, td.quantity;`
 
 	db := connectDb()
 	defer db.Close()
@@ -555,5 +568,55 @@ func deleteService(id int) {
 		panic(err)
 	} else {
 		fmt.Println("Successfully Delete Data!")
+	}
+}
+
+func makeTransaction(transaction entity.Transaksi, detailTrx []entity.DetailTransaksi) {
+	db := connectDb()
+	defer db.Close()
+
+	tx, err := db.Begin()
+
+	if err != nil {
+		panic(err)
+	}
+
+	insertTransaction(transaction, tx)
+	insertDetailTransaction(detailTrx, transaction, tx)
+
+	err = tx.Commit()
+
+	if err != nil {
+		panic(err)
+	} else {
+		fmt.Println("Transaction Commited!")
+	}
+}
+
+func insertTransaction(transaction entity.Transaksi, tx *sql.Tx) {
+	insertStatement := "INSERT INTO trx_bill (id, no_trx, date_in, date_out, customer_id, employer_id) VALUES ($1, $2, $3, $4, $5, $6);"
+
+	_, err := tx.Exec(insertStatement, transaction.Id, transaction.NoTransaction, transaction.DateIn, transaction.DateOut, transaction.CustomerId, transaction.EmployerId)
+
+	validate(err, "Insert Transaction", tx)
+}
+
+func insertDetailTransaction(detailTrx []entity.DetailTransaksi, transaction entity.Transaksi, tx *sql.Tx) {
+	insertStatement := "INSERT INTO trx_bill_detail (id, service_id, quantity, trx_bill_id) VALUES ($1, $2, $3, $4);"
+
+	for _, trx := range detailTrx {
+		_, err := tx.Exec(insertStatement, trx.Id, trx.ServiceId, trx.Quantity, transaction.Id)
+
+		validate(err, "Insert Detail Transaction", tx)
+	}
+	fmt.Println("Successfully Insert All Detail Transaction")
+}
+
+func validate(err error, message string, tx *sql.Tx) {
+	if err != nil {
+		tx.Rollback()
+		fmt.Println(err, "Transaction Rollback!")
+	} else {
+		fmt.Println("Successfully " + message + " Data!")
 	}
 }
