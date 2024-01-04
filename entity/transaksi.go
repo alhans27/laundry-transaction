@@ -12,5 +12,11 @@ type Transaksi struct {
 	EmployerName  string
 }
 
-type DetailTransaction struct {
+type DetailTransaksi struct {
+	Id          int
+	ServiceName string
+	Price       int
+	Unit        string
+	Quantity    int
+	TotalPrice  int
 }

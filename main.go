@@ -45,9 +45,14 @@ func main() {
 	// updateService(layanan)
 	// deleteService(7)
 
-	arrays := getAllTransaction()
-	for _, x := range arrays {
+	arrays1 := getAllTransaction()
+	for _, x := range arrays1 {
 		fmt.Println(x)
+		arrays2 := getDetailTransaction(x.Id)
+		for _, y := range arrays2 {
+			fmt.Println(y)
+		}
+		fmt.Println("========================================")
 	}
 
 	/*
@@ -191,6 +196,34 @@ func scanTransaction(rows *sql.Rows) []entity.Transaksi {
 }
 
 /*
+================================== SCAN DETAIL TRANSACTION FUNCTION ==================================
+-> Mengambil data Detail Transaksi dari hasil db.Query() dan memasukkannya ke dalam Array Struct
+*/
+
+func scanDetailTransaction(rows *sql.Rows) []entity.DetailTransaksi {
+	arrays := []entity.DetailTransaksi{}
+	var err error
+
+	for rows.Next() {
+		detailTrx := entity.DetailTransaksi{}
+		err := rows.Scan(&detailTrx.Id, &detailTrx.ServiceName, &detailTrx.Price, &detailTrx.Unit, &detailTrx.Quantity, &detailTrx.TotalPrice)
+
+		if err != nil {
+			panic(err)
+		}
+
+		arrays = append(arrays, detailTrx)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		panic(err)
+	}
+
+	return arrays
+}
+
+/*
 ================================== GET ALL CUSTOMER FUNCTION ==================================
 -> Mengambil semua data Customer dari tabel mst_customer
 -> Mengembalikan nilai berupa Array Struct of Customer
@@ -292,6 +325,39 @@ JOIN mst_employer as e ON t.employer_id = e.id;`
 	defer rows.Close()
 	transactions := scanTransaction(rows)
 	return transactions
+}
+
+/*
+================================== GET DETAIL TRANSACTION FUNCTION ==================================
+-> Mengambil detail data Transaksi tertentu berdasarkan Id Transaksi
+-> Menggabungkan Tabel trx_bill_detail dan mst_layanan
+*/
+
+func getDetailTransaction(id int) []entity.DetailTransaksi {
+	selectStatement := `SELECT
+td.trx_bill_id as transaction_id,
+l.service_name,
+l.price,
+l.unit,
+td.quantity,
+SUM(l.price*td.quantity) as total
+FROM trx_bill_detail as td
+JOIN mst_layanan as l ON td.service_id = l.id
+WHERE td.trx_bill_id = $1
+GROUP BY td.trx_bill_id, l.service_name, l.price, l.unit, td.quantity;`
+
+	db := connectDb()
+	defer db.Close()
+	var err error
+
+	rows, err := db.Query(selectStatement, id)
+
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	detailTrx := scanDetailTransaction(rows)
+	return detailTrx
 }
 
 /*
