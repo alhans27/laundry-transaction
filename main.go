@@ -45,10 +45,11 @@ func main() {
 	// updateService(layanan)
 	// deleteService(7)
 
-	// arrays := getAllService()
-	// for _, x := range arrays {
-	// 	fmt.Println(x)
-	// }
+	arrays := getAllTransaction()
+	for _, x := range arrays {
+		fmt.Println(x)
+	}
+
 	/*
 		================================== [END] DEBUGING ONLY ==================================
 	*/
@@ -162,6 +163,34 @@ func scanService(rows *sql.Rows) []entity.Layanan {
 }
 
 /*
+================================== SCAN TRANSACTION FUNCTION ==================================
+-> Mengambil data Transaksi dari hasil db.Query() dan memasukkannya ke dalam Array Struct
+*/
+
+func scanTransaction(rows *sql.Rows) []entity.Transaksi {
+	transactions := []entity.Transaksi{}
+	var err error
+
+	for rows.Next() {
+		transaction := entity.Transaksi{}
+		err := rows.Scan(&transaction.Id, &transaction.DateIn, &transaction.DateOut, &transaction.NoTransaction, &transaction.CustomerId, &transaction.CustomerName, &transaction.CustomerPhone, &transaction.EmployerId, &transaction.EmployerName)
+
+		if err != nil {
+			panic(err)
+		}
+
+		transactions = append(transactions, transaction)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		panic(err)
+	}
+
+	return transactions
+}
+
+/*
 ================================== GET ALL CUSTOMER FUNCTION ==================================
 -> Mengambil semua data Customer dari tabel mst_customer
 -> Mengembalikan nilai berupa Array Struct of Customer
@@ -228,6 +257,41 @@ func getAllService() []entity.Layanan {
 	defer rows.Close()
 	services := scanService(rows)
 	return services
+}
+
+/*
+================================== GET ALL TRANSACTION FUNCTION ==================================
+-> Mengambil semua data Transaksi
+-> Menggabungkan Tabel trx_bill, mst_customer dan mst_employer
+*/
+
+func getAllTransaction() []entity.Transaksi {
+	selectStatement := `SELECT  
+t.id,
+t.date_in,
+t.date_out,
+t.no_trx,
+t.customer_id,
+c.name as customer_name,
+c.phone as customer_phone,
+t.employer_id,
+e.name as employer_name
+FROM trx_bill as t
+JOIN mst_customer as c ON t.customer_id = c.id
+JOIN mst_employer as e ON t.employer_id = e.id;`
+
+	db := connectDb()
+	defer db.Close()
+	var err error
+
+	rows, err := db.Query(selectStatement)
+
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	transactions := scanTransaction(rows)
+	return transactions
 }
 
 /*
