@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/jedib0t/go-pretty/v6/table"
 )
 
@@ -17,6 +18,13 @@ var (
 	customer = entity.Customer{}
 	employer = entity.Employer{}
 	layanan  = entity.Layanan{}
+	Validate = validator.New()
+)
+
+const (
+	NameRule    = "required,alpha,min=3,max=50"
+	PhoneRule   = "required,min=11,max=13"
+	AddressRule = "required"
 )
 
 // var scanner = bufio.NewScanner(os.Stdin)
@@ -372,16 +380,53 @@ func displayAddCustomer() {
 	for isLooping {
 		fmt.Print("Masukkan Nama Customer : ")
 		fmt.Scan(&customer.Name)
-		if customer.Name == "" || customer.Name == " " {
-			fmt.Println("Nama Tidak Boleh Kosong")
-		} else if len(customer.Name) < 2 {
-			fmt.Println("Nama Tidak Boleh Kosong")
-		}
 		fmt.Print("Masukkan Nomor Handphone Customer : ")
 		fmt.Scan(&customer.Phone)
 		fmt.Print("Masukkan Alamat Customer : ")
 		fmt.Scan(&customer.Address)
 		fmt.Println("--------------------------------------------")
+		err := Validate.Struct(customer)
+		if err != nil {
+			validationErrors := err.(validator.ValidationErrors)
+			for _, fieldErr := range validationErrors {
+				if fieldErr.Field() == "Name" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					case "alpha":
+						message = "Hanya boleh berupa huruf!"
+					case "min":
+						message = "Harus mengandung minimal " + fieldErr.Param() + " karakter!"
+					case "max":
+						message = "Harus mengandung maksimal " + fieldErr.Param() + " karakter!"
+					}
+					fmt.Println("[!!!] Kolom Nama Customer", message)
+				}
+				if fieldErr.Field() == "Phone" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					case "min":
+						message = "Harus mengandung minimal " + fieldErr.Param() + " karakter!"
+					case "max":
+						message = "Harus mengandung maksimal " + fieldErr.Param() + " karakter!"
+					}
+					fmt.Println("[!!!] Kolom Nomor Handphone Customer", message)
+				}
+				if fieldErr.Field() == "Address" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					}
+					fmt.Println("[!!!] Kolom Alamat Customer", message)
+				}
+			}
+			fmt.Println("--------------------------------------------")
+			continue
+		}
 		fmt.Println("Data Yang Anda Inputkan =>")
 		fmt.Printf("Nama Customer : %s\nNomor Hp : %s\nAlamat : %s\n", customer.Name, customer.Phone, customer.Address)
 		fmt.Print("Yakin Data Sudah Benar? (Y/n) ")

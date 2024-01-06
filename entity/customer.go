@@ -7,10 +7,10 @@ import (
 )
 
 type Customer struct {
-	Id      int
-	Name    string
-	Phone   string
-	Address string
+	Id      int    `validate:"numeric"`
+	Name    string `validate:"required,alpha,min=3,max=50"`
+	Phone   string `validate:"required,min=11,max=13"`
+	Address string `validate:"required"`
 }
 
 /*
@@ -54,7 +54,7 @@ func GetLastIdCustomer() int {
 	if err != nil {
 		panic(err)
 	}
-	return id
+	return id + 1
 }
 
 /*
