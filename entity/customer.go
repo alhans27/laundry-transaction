@@ -41,6 +41,22 @@ func scanCustomer(rows *sql.Rows) []Customer {
 	return customers
 }
 
+func GetLastIdCustomer() int {
+	selectStatement := "SELECT id FROM mst_customer ORDER BY id DESC LIMIT 1"
+	var id int
+
+	db := db.ConnectDB()
+	defer db.Close()
+	var err error
+
+	err = db.QueryRow(selectStatement).Scan(&id)
+
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 /*
 ================================== GET ALL CUSTOMER FUNCTION ==================================
 -> Mengambil semua data Customer dari tabel mst_customer
@@ -71,13 +87,14 @@ func GetAllCustomer() []Customer {
 */
 
 func AddCustomer(customer Customer) {
+	id := GetLastIdCustomer()
 	insertStatement := "INSERT INTO mst_customer (id, name, phone, address) VALUES ($1, $2, $3, $4);"
 
 	db := db.ConnectDB()
 	defer db.Close()
 	var err error
 
-	_, err = db.Exec(insertStatement, customer.Id, customer.Name, customer.Phone, customer.Address)
+	_, err = db.Exec(insertStatement, id, customer.Name, customer.Phone, customer.Address)
 
 	if err != nil {
 		panic(err)

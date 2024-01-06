@@ -11,9 +11,13 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 )
 
-var isRun = true
-
-var t = table.NewWriter()
+var (
+	isRun    = true
+	t        = table.NewWriter()
+	customer = entity.Customer{}
+	employer = entity.Employer{}
+	layanan  = entity.Layanan{}
+)
 
 // var scanner = bufio.NewScanner(os.Stdin)
 
@@ -82,6 +86,8 @@ func main() {
 			switch choice {
 			case "1":
 				displayAllCustomer()
+			case "2":
+				displayAddCustomer()
 			}
 		case "2":
 			choice = displayEmployerMenu()
@@ -356,6 +362,35 @@ func displayDetailTransaction() {
 
 	t.Render()
 	fmt.Println()
+}
+
+func displayAddCustomer() {
+	var choice string
+	isLooping := true
+	fmt.Println("Tambah Customer Baru")
+	fmt.Println("===========================")
+	for isLooping {
+		fmt.Print("Masukkan Nama Customer : ")
+		fmt.Scan(&customer.Name)
+		if customer.Name == "" || customer.Name == " " {
+			fmt.Println("Nama Tidak Boleh Kosong")
+		} else if len(customer.Name) < 2 {
+			fmt.Println("Nama Tidak Boleh Kosong")
+		}
+		fmt.Print("Masukkan Nomor Handphone Customer : ")
+		fmt.Scan(&customer.Phone)
+		fmt.Print("Masukkan Alamat Customer : ")
+		fmt.Scan(&customer.Address)
+		fmt.Println("--------------------------------------------")
+		fmt.Println("Data Yang Anda Inputkan =>")
+		fmt.Printf("Nama Customer : %s\nNomor Hp : %s\nAlamat : %s\n", customer.Name, customer.Phone, customer.Address)
+		fmt.Print("Yakin Data Sudah Benar? (Y/n) ")
+		fmt.Scan(&choice)
+		if choice == "y" || choice == "Y" {
+			entity.AddCustomer(customer)
+			break
+		}
+	}
 }
 
 func resetTable() {
