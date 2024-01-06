@@ -21,12 +21,6 @@ var (
 	Validate = validator.New()
 )
 
-const (
-	NameRule    = "required,alpha,min=3,max=50"
-	PhoneRule   = "required,min=11,max=13"
-	AddressRule = "required"
-)
-
 // var scanner = bufio.NewScanner(os.Stdin)
 
 func main() {
@@ -96,6 +90,8 @@ func main() {
 				displayAllCustomer()
 			case "2":
 				displayAddCustomer()
+			case "3":
+				displayUpdateCustomer()
 			}
 		case "2":
 			choice = displayEmployerMenu()
@@ -208,7 +204,6 @@ func displayTransactionMenu() string {
 }
 
 func displayAllCustomer() {
-	var choice string
 	customers := entity.GetAllCustomer()
 	fmt.Println()
 	fmt.Println("|\t\t\tCUSTOMER ENIGMA LAUNDRY\t\t\t|")
@@ -222,18 +217,160 @@ func displayAllCustomer() {
 	t.Render()
 
 	fmt.Println()
+}
 
-	for choice != "Y" && choice != "y" || choice != "N" && choice != "n" {
-		fmt.Print("Back to Main Menu? (Y/n)\n")
-		fmt.Scan(&choice)
-		if choice == "Y" || choice == "y" {
-			isRun = true
-			break
-		} else if choice == "N" || choice == "n" {
-			isRun = false
-			break
-		} else {
-			fmt.Println("Anda menginputkan pilihan yang salah. Coba lagi!")
+func displayAddCustomer() {
+	var choice string
+	isLooping := true
+	fmt.Println("Tambah Customer Baru")
+	fmt.Println("===========================")
+	for isLooping {
+		fmt.Print("Masukkan Nama Customer : ")
+		fmt.Scan(&customer.Name)
+		fmt.Print("Masukkan Nomor Handphone Customer : ")
+		fmt.Scan(&customer.Phone)
+		fmt.Print("Masukkan Alamat Customer : ")
+		fmt.Scan(&customer.Address)
+		fmt.Println("--------------------------------------------")
+		err := Validate.Struct(customer)
+		if err != nil {
+			validationErrors := err.(validator.ValidationErrors)
+			for _, fieldErr := range validationErrors {
+				if fieldErr.Field() == "Name" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					case "alpha":
+						message = "Hanya boleh berupa huruf!"
+					case "min":
+						message = "Harus mengandung minimal " + fieldErr.Param() + " karakter!"
+					case "max":
+						message = "Harus mengandung maksimal " + fieldErr.Param() + " karakter!"
+					}
+					fmt.Println("[!!!] Kolom Nama Customer", message)
+				}
+				if fieldErr.Field() == "Phone" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					case "min":
+						message = "Harus mengandung minimal " + fieldErr.Param() + " karakter!"
+					case "max":
+						message = "Harus mengandung maksimal " + fieldErr.Param() + " karakter!"
+					}
+					fmt.Println("[!!!] Kolom Nomor Handphone Customer", message)
+				}
+				if fieldErr.Field() == "Address" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					}
+					fmt.Println("[!!!] Kolom Alamat Customer", message)
+				}
+			}
+			fmt.Println("--------------------------------------------")
+			continue
+		}
+		fmt.Println("Data Yang Anda Inputkan =>")
+		fmt.Printf("Nama Customer : %s\nNomor Hp : %s\nAlamat : %s\n", customer.Name, customer.Phone, customer.Address)
+
+		for true {
+			fmt.Print("Apakah Data Tersebut Sudah Benar? (Y/n) ")
+			fmt.Scan(&choice)
+			if choice == "Y" {
+				fmt.Println("++++++++++++++++++++++++++++++++++++++++++++++++++")
+				entity.AddCustomer(customer)
+				isLooping = false
+				break
+			} else if choice == "n" {
+				isLooping = true
+				break
+			} else {
+				fmt.Println("Pilihan Tidak Valid. Harus Y atau n !!!")
+			}
+		}
+	}
+}
+
+func displayUpdateCustomer() {
+	var isLooping = true
+	var choice string
+
+	fmt.Println("Update Data Customer")
+	fmt.Println("===========================")
+	displayAllCustomer()
+	fmt.Print("Masukkan Id Customer yang hendak di Update : ")
+	fmt.Scan(&customer.Id)
+
+	for isLooping {
+		fmt.Print("Masukkan Nama Customer : ")
+		fmt.Scan(&customer.Name)
+		fmt.Print("Masukkan Nomor Handphone Customer : ")
+		fmt.Scan(&customer.Phone)
+		fmt.Print("Masukkan Alamat Customer : ")
+		fmt.Scan(&customer.Address)
+		fmt.Println("--------------------------------------------")
+		err := Validate.Struct(customer)
+		if err != nil {
+			validationErrors := err.(validator.ValidationErrors)
+			for _, fieldErr := range validationErrors {
+				if fieldErr.Field() == "Name" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					case "alpha":
+						message = "Hanya boleh berupa huruf!"
+					case "min":
+						message = "Harus mengandung minimal " + fieldErr.Param() + " karakter!"
+					case "max":
+						message = "Harus mengandung maksimal " + fieldErr.Param() + " karakter!"
+					}
+					fmt.Println("[!!!] Kolom Nama Customer", message)
+				}
+				if fieldErr.Field() == "Phone" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					case "min":
+						message = "Harus mengandung minimal " + fieldErr.Param() + " karakter!"
+					case "max":
+						message = "Harus mengandung maksimal " + fieldErr.Param() + " karakter!"
+					}
+					fmt.Println("[!!!] Kolom Nomor Handphone Customer", message)
+				}
+				if fieldErr.Field() == "Address" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					}
+					fmt.Println("[!!!] Kolom Alamat Customer", message)
+				}
+			}
+			fmt.Println("--------------------------------------------")
+			continue
+		}
+		fmt.Println("Data Yang Anda Inputkan =>")
+		fmt.Printf("Id Customer : %d\nNama Customer : %s\nNomor Hp : %s\nAlamat : %s\n", customer.Id, customer.Name, customer.Phone, customer.Address)
+		for true {
+			fmt.Print("Apakah Data Tersebut Sudah Benar? (Y/n) ")
+			fmt.Scan(&choice)
+			if choice == "Y" {
+				fmt.Println("++++++++++++++++++++++++++++++++++++++++++++++++++")
+				entity.UpdateCustomer(customer)
+				isLooping = false
+				break
+			} else if choice == "n" {
+				isLooping = true
+				break
+			} else {
+				fmt.Println("Pilihan Tidak Valid. Harus Y atau n !!!")
+			}
 		}
 	}
 }
@@ -370,72 +507,6 @@ func displayDetailTransaction() {
 
 	t.Render()
 	fmt.Println()
-}
-
-func displayAddCustomer() {
-	var choice string
-	isLooping := true
-	fmt.Println("Tambah Customer Baru")
-	fmt.Println("===========================")
-	for isLooping {
-		fmt.Print("Masukkan Nama Customer : ")
-		fmt.Scan(&customer.Name)
-		fmt.Print("Masukkan Nomor Handphone Customer : ")
-		fmt.Scan(&customer.Phone)
-		fmt.Print("Masukkan Alamat Customer : ")
-		fmt.Scan(&customer.Address)
-		fmt.Println("--------------------------------------------")
-		err := Validate.Struct(customer)
-		if err != nil {
-			validationErrors := err.(validator.ValidationErrors)
-			for _, fieldErr := range validationErrors {
-				if fieldErr.Field() == "Name" {
-					var message string
-					switch fieldErr.Tag() {
-					case "required":
-						message = "Tidak Boleh Kosong!"
-					case "alpha":
-						message = "Hanya boleh berupa huruf!"
-					case "min":
-						message = "Harus mengandung minimal " + fieldErr.Param() + " karakter!"
-					case "max":
-						message = "Harus mengandung maksimal " + fieldErr.Param() + " karakter!"
-					}
-					fmt.Println("[!!!] Kolom Nama Customer", message)
-				}
-				if fieldErr.Field() == "Phone" {
-					var message string
-					switch fieldErr.Tag() {
-					case "required":
-						message = "Tidak Boleh Kosong!"
-					case "min":
-						message = "Harus mengandung minimal " + fieldErr.Param() + " karakter!"
-					case "max":
-						message = "Harus mengandung maksimal " + fieldErr.Param() + " karakter!"
-					}
-					fmt.Println("[!!!] Kolom Nomor Handphone Customer", message)
-				}
-				if fieldErr.Field() == "Address" {
-					var message string
-					switch fieldErr.Tag() {
-					case "required":
-						message = "Tidak Boleh Kosong!"
-					}
-					fmt.Println("[!!!] Kolom Alamat Customer", message)
-				}
-			}
-			fmt.Println("--------------------------------------------")
-			continue
-		}
-		fmt.Println("Data Yang Anda Inputkan =>")
-		fmt.Printf("Nama Customer : %s\nNomor Hp : %s\nAlamat : %s\n", customer.Name, customer.Phone, customer.Address)
-		fmt.Print("Yakin Data Sudah Benar? (Y/n) ")
-		fmt.Scan(&choice)
-		if choice == "y" || choice == "Y" {
-			entity.AddCustomer(customer)
-			break
-		}
-	}
 }
 
 func resetTable() {
