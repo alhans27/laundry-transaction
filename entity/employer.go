@@ -7,10 +7,10 @@ import (
 )
 
 type Employer struct {
-	Id      int
-	Name    string
-	Phone   string
-	Address string
+	Id      int    `validate:"numeric"`
+	Name    string `validate:"required,alpha,min=3,max=50"`
+	Phone   string `validate:"required,min=11,max=13"`
+	Address string `validate:"required"`
 }
 
 /*
@@ -64,6 +64,22 @@ func GetAllEmployer() []Employer {
 	return employers
 }
 
+func GetLastIdEmployer() int {
+	selectStatement := "SELECT id FROM mst_employer ORDER BY id DESC LIMIT 1"
+	var id int
+
+	db := db.ConnectDB()
+	defer db.Close()
+	var err error
+
+	err = db.QueryRow(selectStatement).Scan(&id)
+
+	if err != nil {
+		panic(err)
+	}
+	return id + 1
+}
+
 /*
 ================================== ADD EMPLOYER FUNCTION ==================================
 -> Menambah Data Employer Baru
@@ -71,13 +87,14 @@ func GetAllEmployer() []Employer {
 */
 
 func AddEmployer(employer Employer) {
+	id := GetLastIdEmployer()
 	insertStatement := "INSERT INTO mst_employer (id, name, phone, address) VALUES ($1, $2, $3, $4);"
 
 	db := db.ConnectDB()
 	defer db.Close()
 	var err error
 
-	_, err = db.Exec(insertStatement, employer.Id, employer.Name, employer.Phone, employer.Address)
+	_, err = db.Exec(insertStatement, id, employer.Name, employer.Phone, employer.Address)
 
 	if err != nil {
 		panic(err)

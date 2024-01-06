@@ -100,6 +100,12 @@ func main() {
 			switch choice {
 			case "1":
 				displayAllEmployer()
+			case "2":
+				displayAddEmployer()
+			case "3":
+				displayUpdateEmployer()
+			case "4":
+				displayDeleteEmployer()
 			}
 		case "3":
 			choice = displayServiceMenu()
@@ -387,6 +393,7 @@ func displayDeleteCustomer() {
 	fmt.Scan(&customer.Id)
 	for _, cust := range customers {
 		if customer.Id == cust.Id {
+			fmt.Println("++++++++++++++++++++++++++++++++++++++++++++++++++")
 			entity.DeleteCustomer(customer.Id)
 			break
 		}
@@ -395,7 +402,6 @@ func displayDeleteCustomer() {
 }
 
 func displayAllEmployer() {
-	var choice string
 	employers := entity.GetAllEmployer()
 	fmt.Println()
 	fmt.Println("|\t\t\tKARYAWAN ENIGMA LAUNDRY\t\t\t|")
@@ -409,20 +415,180 @@ func displayAllEmployer() {
 	t.Render()
 
 	fmt.Println()
+}
 
-	for choice != "Y" && choice != "y" || choice != "N" && choice != "n" {
-		fmt.Print("Back to Main Menu? (Y/n)\n")
-		fmt.Scan(&choice)
-		if choice == "Y" || choice == "y" {
-			isRun = true
-			break
-		} else if choice == "N" || choice == "n" {
-			isRun = false
-			break
-		} else {
-			fmt.Println("Anda menginputkan pilihan yang salah. Coba lagi!")
+func displayAddEmployer() {
+	var choice string
+	isLooping := true
+	fmt.Println("Tambah Karyawan Baru")
+	fmt.Println("===========================")
+	for isLooping {
+		fmt.Print("Masukkan Nama Karyawan : ")
+		fmt.Scan(&employer.Name)
+		fmt.Print("Masukkan Nomor Handphone Karyawan : ")
+		fmt.Scan(&employer.Phone)
+		fmt.Print("Masukkan Alamat Karyawan : ")
+		fmt.Scan(&employer.Address)
+		fmt.Println("--------------------------------------------")
+		err := Validate.Struct(employer)
+		if err != nil {
+			validationErrors := err.(validator.ValidationErrors)
+			for _, fieldErr := range validationErrors {
+				if fieldErr.Field() == "Name" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					case "alpha":
+						message = "Hanya boleh berupa huruf!"
+					case "min":
+						message = "Harus mengandung minimal " + fieldErr.Param() + " karakter!"
+					case "max":
+						message = "Harus mengandung maksimal " + fieldErr.Param() + " karakter!"
+					}
+					fmt.Println("[!!!] Kolom Nama Karyawan", message)
+				}
+				if fieldErr.Field() == "Phone" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					case "min":
+						message = "Harus mengandung minimal " + fieldErr.Param() + " karakter!"
+					case "max":
+						message = "Harus mengandung maksimal " + fieldErr.Param() + " karakter!"
+					}
+					fmt.Println("[!!!] Kolom Nomor Handphone Karyawan", message)
+				}
+				if fieldErr.Field() == "Address" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					}
+					fmt.Println("[!!!] Kolom Alamat Karyawan", message)
+				}
+			}
+			fmt.Println("--------------------------------------------")
+			continue
+		}
+		fmt.Println("Data Yang Anda Inputkan =>")
+		fmt.Printf("Nama Karyawan : %s\nNomor Hp : %s\nAlamat : %s\n", employer.Name, employer.Phone, employer.Address)
+
+		for true {
+			fmt.Print("Apakah Data Tersebut Sudah Benar? (Y/n) ")
+			fmt.Scan(&choice)
+			if choice == "Y" {
+				fmt.Println("++++++++++++++++++++++++++++++++++++++++++++++++++")
+				entity.AddEmployer(employer)
+				isLooping = false
+				break
+			} else if choice == "n" {
+				isLooping = true
+				break
+			} else {
+				fmt.Println("Pilihan Tidak Valid. Harus Y atau n !!!")
+			}
 		}
 	}
+}
+
+func displayUpdateEmployer() {
+	var isLooping = true
+	var choice string
+
+	fmt.Println("Update Data Karyawan")
+	fmt.Println("===========================")
+	displayAllEmployer()
+	fmt.Print("Masukkan Id Karyawan yang hendak di Update : ")
+	fmt.Scan(&employer.Id)
+
+	for isLooping {
+		fmt.Print("Masukkan Nama Karyawan : ")
+		fmt.Scan(&employer.Name)
+		fmt.Print("Masukkan Nomor Handphone Karyawan : ")
+		fmt.Scan(&employer.Phone)
+		fmt.Print("Masukkan Alamat Karyawan : ")
+		fmt.Scan(&employer.Address)
+		fmt.Println("--------------------------------------------")
+		err := Validate.Struct(employer)
+		if err != nil {
+			validationErrors := err.(validator.ValidationErrors)
+			for _, fieldErr := range validationErrors {
+				if fieldErr.Field() == "Name" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					case "alpha":
+						message = "Hanya boleh berupa huruf!"
+					case "min":
+						message = "Harus mengandung minimal " + fieldErr.Param() + " karakter!"
+					case "max":
+						message = "Harus mengandung maksimal " + fieldErr.Param() + " karakter!"
+					}
+					fmt.Println("[!!!] Kolom Nama Karyawan", message)
+				}
+				if fieldErr.Field() == "Phone" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					case "min":
+						message = "Harus mengandung minimal " + fieldErr.Param() + " karakter!"
+					case "max":
+						message = "Harus mengandung maksimal " + fieldErr.Param() + " karakter!"
+					}
+					fmt.Println("[!!!] Kolom Nomor Handphone Karyawan", message)
+				}
+				if fieldErr.Field() == "Address" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					}
+					fmt.Println("[!!!] Kolom Alamat Karyawan", message)
+				}
+			}
+			fmt.Println("--------------------------------------------")
+			continue
+		}
+		fmt.Println("Data Yang Anda Inputkan =>")
+		fmt.Printf("Id Karyawan : %d\nNama Karyawan : %s\nNomor Hp : %s\nAlamat : %s\n", employer.Id, employer.Name, employer.Phone, employer.Address)
+		for true {
+			fmt.Print("Apakah Data Tersebut Sudah Benar? (Y/n) ")
+			fmt.Scan(&choice)
+			if choice == "Y" {
+				fmt.Println("++++++++++++++++++++++++++++++++++++++++++++++++++")
+				entity.UpdateEmployer(employer)
+				isLooping = false
+				break
+			} else if choice == "n" {
+				isLooping = true
+				break
+			} else {
+				fmt.Println("Pilihan Tidak Valid. Harus Y atau n !!!")
+			}
+		}
+	}
+}
+
+func displayDeleteEmployer() {
+
+	fmt.Println("Delete Data Employer")
+	fmt.Println("===========================")
+	employers := entity.GetAllEmployer()
+	displayAllEmployer()
+	fmt.Print("Masukkan Id Employer yang hendak di Hapus : ")
+	fmt.Scan(&employer.Id)
+	for _, emp := range employers {
+		if employer.Id == emp.Id {
+			fmt.Println("++++++++++++++++++++++++++++++++++++++++++++++++++")
+			entity.DeleteEmployer(employer.Id)
+			break
+		}
+	}
+
 }
 
 func displayAllService() {
