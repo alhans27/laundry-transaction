@@ -92,6 +92,8 @@ func main() {
 				displayAddCustomer()
 			case "3":
 				displayUpdateCustomer()
+			case "4":
+				displayDeleteCustomer()
 			}
 		case "2":
 			choice = displayEmployerMenu()
@@ -373,6 +375,23 @@ func displayUpdateCustomer() {
 			}
 		}
 	}
+}
+
+func displayDeleteCustomer() {
+
+	fmt.Println("Delete Data Customer")
+	fmt.Println("===========================")
+	customers := entity.GetAllCustomer()
+	displayAllCustomer()
+	fmt.Print("Masukkan Id Customer yang hendak di Hapus : ")
+	fmt.Scan(&customer.Id)
+	for _, cust := range customers {
+		if customer.Id == cust.Id {
+			entity.DeleteCustomer(customer.Id)
+			break
+		}
+	}
+
 }
 
 func displayAllEmployer() {
