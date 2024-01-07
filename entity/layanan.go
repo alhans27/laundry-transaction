@@ -64,6 +64,12 @@ func GetAllService() []Layanan {
 	return services
 }
 
+/*
+================================== GET LAST ID SERVICE FUNCTION ==================================
+-> Mengambil ID Terakhir dari data Layanan pada tabel mst_layanan
+-> Mengembalikan nilai berupa int
+*/
+
 func GetLastIdService() int {
 	selectStatement := "SELECT id FROM mst_layanan ORDER BY id DESC LIMIT 1"
 	var id int

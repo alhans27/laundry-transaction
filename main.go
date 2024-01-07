@@ -83,6 +83,11 @@ func main() {
 		================================== [END] DEBUGING ONLY ==================================
 	*/
 
+	/*
+		================================== MAIN CODE ==================================
+		-> Menampilkan Menu-menu yang tersedia
+	*/
+
 	for isRun {
 		choice := displayMainMenu()
 		switch choice {
@@ -136,6 +141,11 @@ func main() {
 	}
 }
 
+/*
+================================== DISPLAY MAIN MENU FUNCTION ==================================
+-> Menampilkan Pilihan Menu Utama Dari Aplikasi
+*/
+
 func displayMainMenu() string {
 	var choice string
 	fmt.Println("======================================================================")
@@ -156,6 +166,11 @@ func displayMainMenu() string {
 	return choice
 }
 
+/*
+================================== DISPLAY CUSTOMER MENU FUNCTION ==================================
+-> Menampilkan Pilihan Menu Tentang Customer
+*/
+
 func displayCustomerMenu() string {
 	var choice string
 	fmt.Println("||      CUSTOMER MENU      ||")
@@ -172,6 +187,11 @@ func displayCustomerMenu() string {
 
 	return choice
 }
+
+/*
+================================== DISPLAY EMPLOYER MENU FUNCTION ==================================
+-> Menampilkan Pilihan Menu Tentang Karyawan
+*/
 
 func displayEmployerMenu() string {
 	var choice string
@@ -190,6 +210,11 @@ func displayEmployerMenu() string {
 	return choice
 }
 
+/*
+================================== DISPLAY SERVICE MENU FUNCTION ==================================
+-> Menampilkan Pilihan Menu Tentang Layanan
+*/
+
 func displayServiceMenu() string {
 	var choice string
 	fmt.Println("||      SERVICE MENU      ||")
@@ -207,6 +232,11 @@ func displayServiceMenu() string {
 	return choice
 }
 
+/*
+================================== DISPLAY TRANSACTION MENU FUNCTION ==================================
+-> Menampilkan Pilihan Menu Tentang Transaksi
+*/
+
 func displayTransactionMenu() string {
 	var choice string
 	fmt.Println("||      TRANSACTION MENU      ||")
@@ -221,6 +251,11 @@ func displayTransactionMenu() string {
 
 	return choice
 }
+
+/*
+================================== DISPLAY ALL CUSTOMER FUNCTION ==================================
+-> UI Untuk Menampilkan Semua Data Customer
+*/
 
 func displayAllCustomer() {
 	customers := entity.GetAllCustomer()
@@ -237,6 +272,11 @@ func displayAllCustomer() {
 
 	fmt.Println()
 }
+
+/*
+================================== DISPLAY ADD CUSTOMER FUNCTION ==================================
+-> UI Untuk Menambahkan Data Customer
+*/
 
 func displayAddCustomer() {
 	var choice string
@@ -313,6 +353,11 @@ func displayAddCustomer() {
 		}
 	}
 }
+
+/*
+================================== DISPLAY UPDATE CUSTOMER FUNCTION ==================================
+-> UI Untuk Mengupdate Data Customer
+*/
 
 func displayUpdateCustomer() {
 	var isLooping = true
@@ -394,6 +439,11 @@ func displayUpdateCustomer() {
 	}
 }
 
+/*
+================================== DISPLAY DELETE CUSTOMER FUNCTION ==================================
+-> UI Untuk Menghapus Data Customer
+*/
+
 func displayDeleteCustomer() {
 
 	fmt.Println("Delete Data Customer")
@@ -411,6 +461,11 @@ func displayDeleteCustomer() {
 	}
 }
 
+/*
+================================== DISPLAY ALL EMPLOYER FUNCTION ==================================
+-> UI Untuk Menampilkan Semua Data Karyawan
+*/
+
 func displayAllEmployer() {
 	employers := entity.GetAllEmployer()
 	fmt.Println()
@@ -426,6 +481,11 @@ func displayAllEmployer() {
 
 	fmt.Println()
 }
+
+/*
+================================== DISPLAY ADD EMPLOYER FUNCTION ==================================
+-> UI Untuk Menambahkan Data Karyawan
+*/
 
 func displayAddEmployer() {
 	var choice string
@@ -502,6 +562,11 @@ func displayAddEmployer() {
 		}
 	}
 }
+
+/*
+================================== DISPLAY UPDATE EMPLOYER FUNCTION ==================================
+-> UI Untuk Mengupdate Data Karyawan
+*/
 
 func displayUpdateEmployer() {
 	var isLooping = true
@@ -583,6 +648,11 @@ func displayUpdateEmployer() {
 	}
 }
 
+/*
+================================== DISPLAY DELETE EMPLOYER FUNCTION ==================================
+-> UI Untuk Menghapus Data Karyawan
+*/
+
 func displayDeleteEmployer() {
 
 	fmt.Println("Delete Data Employer")
@@ -600,6 +670,11 @@ func displayDeleteEmployer() {
 	}
 }
 
+/*
+================================== DISPLAY ALL SERVICE FUNCTION ==================================
+-> UI Untuk Menampilkan Semua Data Layanan
+*/
+
 func displayAllService() {
 	services := entity.GetAllService()
 	fmt.Println()
@@ -615,6 +690,11 @@ func displayAllService() {
 
 	fmt.Println()
 }
+
+/*
+================================== DISPLAY ADD SERVICE FUNCTION ==================================
+-> UI Untuk Menambahkan Data Layanan
+*/
 
 func displayAddService() {
 	var choice string
@@ -685,6 +765,11 @@ func displayAddService() {
 		}
 	}
 }
+
+/*
+================================== DISPLAY UPDATE SERVICE FUNCTION ==================================
+-> UI Untuk Mengupdate Data Layanan
+*/
 
 func displayUpdateService() {
 	var isLooping = true
@@ -761,6 +846,11 @@ func displayUpdateService() {
 	}
 }
 
+/*
+================================== DISPLAY DELETE SERVICE FUNCTION ==================================
+-> UI Untuk Menghapus Data Layanan
+*/
+
 func displayDeleteService() {
 
 	fmt.Println("Delete Data Layanan")
@@ -776,8 +866,12 @@ func displayDeleteService() {
 			break
 		}
 	}
-
 }
+
+/*
+================================== DISPLAY ALL TRANSACTION FUNCTION ==================================
+-> UI Untuk Menampilkan Semua Data Transaksi
+*/
 
 func displayAllTransaction() {
 	var choice string
@@ -819,6 +913,11 @@ func displayAllTransaction() {
 	}
 }
 
+/*
+================================== DISPLAY DETAIL TRANSACTION FUNCTION ==================================
+-> UI Untuk Menampilkan Detail Data Dari Transaksi
+*/
+
 func displayDetailTransaction() {
 	var choice string
 	var totalHarga int
@@ -850,6 +949,11 @@ func displayDetailTransaction() {
 	t.Render()
 	fmt.Println()
 }
+
+/*
+================================== DISPLAY ADD TRANSACTION FUNCTION ==================================
+-> UI Untuk Menambahkan Data Transaksi dan Detailnya
+*/
 
 func displayAddTransaction() {
 	var choice string
@@ -899,9 +1003,13 @@ func displayAddTransaction() {
 			}
 		}
 	}
-	fmt.Println(arrays)
 	entity.MakeTransaction(transaksi, arrays)
 }
+
+/*
+================================== RESET TABLE FUNCTION ==================================
+-> Untuk Mereset Header, Rows dan Footer pada Table yang digunakan dari Package go-pretty
+*/
 
 func resetTable() {
 	t.ResetHeaders()

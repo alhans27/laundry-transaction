@@ -41,6 +41,12 @@ func scanCustomer(rows *sql.Rows) []Customer {
 	return customers
 }
 
+/*
+================================== GET LAST ID CUSTOMER FUNCTION ==================================
+-> Mengambil ID Terakhir dari data Customer pada tabel mst_customer
+-> Mengembalikan nilai berupa int
+*/
+
 func GetLastIdCustomer() int {
 	selectStatement := "SELECT id FROM mst_customer ORDER BY id DESC LIMIT 1"
 	var id int
@@ -132,17 +138,21 @@ func UpdateCustomer(customer Customer) {
 */
 
 func DeleteCustomer(id int) {
+	selectStatement := "SELECT customer_id FROM trx_bill WHERE customer_id = $1;"
 	deleteStatement := "DELETE FROM mst_customer WHERE id=$1;"
+
+	var custId int
 
 	db := db.ConnectDB()
 	defer db.Close()
-	var err error
 
-	_, err = db.Exec(deleteStatement, id)
-
-	if err != nil {
+	err := db.QueryRow(selectStatement, id).Scan(&custId)
+	if custId != 0 && err == nil {
+		fmt.Println("[MESSAGE] Maaf ID Tersebut tidak dapat DIHAPUS karena telah digunakan dalam Transaksi")
+	} else if custId == 0 && err != nil {
+		_, err = db.Exec(deleteStatement, id)
+		fmt.Println("[MESSAGE] Successfully Delete Data!")
+	} else if err != nil {
 		panic(err)
-	} else {
-		fmt.Println("Successfully Delete Data!")
 	}
 }

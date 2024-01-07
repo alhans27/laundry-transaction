@@ -119,6 +119,11 @@ JOIN mst_employer as e ON t.employer_id = e.id;`
 	return transactions
 }
 
+/*
+================================== GET LAST ID TRANSACTION FUNCTION ==================================
+-> Mengambil ID terakhir dari data pada tabel Transaksi (trx_bill)
+*/
+
 func GetLastIdTransaction() int {
 	selectStatement := "SELECT id FROM trx_bill ORDER BY id DESC LIMIT 1"
 	var id int
@@ -134,6 +139,11 @@ func GetLastIdTransaction() int {
 	}
 	return id + 1
 }
+
+/*
+================================== GET LAST ID DETAIL TRANSACTION FUNCTION ==================================
+-> Mengambil ID terakhir dari data pada tabel Detail Transaksi (trx_bill_detail)
+*/
 
 func GetLastIdDetailTransaction() int {
 	selectStatement := "SELECT id FROM trx_bill_detail ORDER BY id DESC LIMIT 1"
@@ -187,7 +197,7 @@ GROUP BY td.trx_bill_id, td.service_id, l.service_name, l.price, l.unit, td.quan
 
 /*
 ================================== MAKE TRANSACTION FUNCTION ==================================
--> Insert data Transaksi
+-> Insert data Transaksi dan Detailnya
 -> Caranya dengan Insert data di tabel trx_bill kemudian insert data di tabel trx_bill_detail
 */
 
@@ -213,6 +223,12 @@ func MakeTransaction(transaction Transaksi, detailTrx []DetailTransaksi) {
 	}
 }
 
+/*
+================================== INSERT TRANSACTION FUNCTION ==================================
+-> Insert data Transaksi ke tabel Transaksi
+-> tabel yang digunakan trx_bill
+*/
+
 func insertTransaction(transaction Transaksi, tx *sql.Tx) {
 	insertStatement := "INSERT INTO trx_bill (id, no_trx, date_in, date_out, customer_id, employer_id) VALUES ($1, $2, $3, $4, $5, $6);"
 
@@ -221,17 +237,28 @@ func insertTransaction(transaction Transaksi, tx *sql.Tx) {
 	Validate(err, "Insert Transaction", tx)
 }
 
+/*
+================================== INSERT TRANSACTION FUNCTION ==================================
+-> Insert data Detail Transaksi ke tabel Detail Transaksi
+-> tabel yang digunakan trx_bill_detail
+*/
+
 func insertDetailTransaction(detailTrx []DetailTransaksi, transaction Transaksi, tx *sql.Tx) {
 	insertStatement := "INSERT INTO trx_bill_detail (id, service_id, quantity, trx_bill_id) VALUES ($1, $2, $3, $4);"
 
 	for i, trx := range detailTrx {
 		_, err := tx.Exec(insertStatement, trx.Id, trx.ServiceId, trx.Quantity, transaction.Id)
 
-		fmt.Printf("[%d] ", i)
+		fmt.Printf("DEBUG[%d] ", i)
 		Validate(err, "Insert Detail", tx)
 	}
 	fmt.Println("Successfully Insert All Detail Transaction")
 }
+
+/*
+================================== VALIDATE FUNCTION ==================================
+-> Validasi Transaction Method Rollback
+*/
 
 func Validate(err error, message string, tx *sql.Tx) {
 	if err != nil {

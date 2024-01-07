@@ -64,6 +64,12 @@ func GetAllEmployer() []Employer {
 	return employers
 }
 
+/*
+================================== GET LAST ID EMPLOYER FUNCTION ==================================
+-> Mengambil ID Terakhir dari data Employer pada tabel mst_employer
+-> Mengembalikan nilai berupa int
+*/
+
 func GetLastIdEmployer() int {
 	selectStatement := "SELECT id FROM mst_employer ORDER BY id DESC LIMIT 1"
 	var id int
@@ -132,17 +138,20 @@ func UpdateEmployer(employer Employer) {
 */
 
 func DeleteEmployer(id int) {
+	selectStatement := "SELECT employer_id FROM trx_bill WHERE employer_id = $1;"
 	deleteStatement := "DELETE FROM mst_employer WHERE id=$1;"
+	var empId int
 
 	db := db.ConnectDB()
 	defer db.Close()
-	var err error
 
-	_, err = db.Exec(deleteStatement, id)
-
-	if err != nil {
+	err := db.QueryRow(selectStatement, id).Scan(&empId)
+	if empId != 0 && err == nil {
+		fmt.Println("[MESSAGE] Maaf ID Tersebut tidak dapat DIHAPUS karena telah digunakan dalam Transaksi")
+	} else if empId == 0 && err != nil {
+		_, err = db.Exec(deleteStatement, id)
+		fmt.Println("[MESSAGE] Successfully Delete Data!")
+	} else if err != nil {
 		panic(err)
-	} else {
-		fmt.Println("Successfully Delete Data!")
 	}
 }
