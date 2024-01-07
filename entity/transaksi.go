@@ -119,6 +119,38 @@ JOIN mst_employer as e ON t.employer_id = e.id;`
 	return transactions
 }
 
+func GetLastIdTransaction() int {
+	selectStatement := "SELECT id FROM trx_bill ORDER BY id DESC LIMIT 1"
+	var id int
+
+	db := db.ConnectDB()
+	defer db.Close()
+	var err error
+
+	err = db.QueryRow(selectStatement).Scan(&id)
+
+	if err != nil {
+		panic(err)
+	}
+	return id + 1
+}
+
+func GetLastIdDetailTransaction() int {
+	selectStatement := "SELECT id FROM trx_bill_detail ORDER BY id DESC LIMIT 1"
+	var id int
+
+	db := db.ConnectDB()
+	defer db.Close()
+	var err error
+
+	err = db.QueryRow(selectStatement).Scan(&id)
+
+	if err != nil {
+		panic(err)
+	}
+	return id + 1
+}
+
 /*
 ================================== GET DETAIL TRANSACTION FUNCTION ==================================
 -> Mengambil detail data Transaksi tertentu berdasarkan Id Transaksi
@@ -192,10 +224,11 @@ func insertTransaction(transaction Transaksi, tx *sql.Tx) {
 func insertDetailTransaction(detailTrx []DetailTransaksi, transaction Transaksi, tx *sql.Tx) {
 	insertStatement := "INSERT INTO trx_bill_detail (id, service_id, quantity, trx_bill_id) VALUES ($1, $2, $3, $4);"
 
-	for _, trx := range detailTrx {
+	for i, trx := range detailTrx {
 		_, err := tx.Exec(insertStatement, trx.Id, trx.ServiceId, trx.Quantity, transaction.Id)
 
-		Validate(err, "Insert Detail Transaction", tx)
+		fmt.Printf("[%d] ", i)
+		Validate(err, "Insert Detail", tx)
 	}
 	fmt.Println("Successfully Insert All Detail Transaction")
 }

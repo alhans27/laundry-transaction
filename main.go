@@ -13,13 +13,15 @@ import (
 )
 
 var (
-	isRun    = true
-	t        = table.NewWriter()
-	customer = entity.Customer{}
-	employer = entity.Employer{}
-	layanan  = entity.Layanan{}
-	validate = validator.New()
-	scanner  = bufio.NewScanner(os.Stdin)
+	isRun            = true
+	t                = table.NewWriter()
+	customer         = entity.Customer{}
+	employer         = entity.Employer{}
+	layanan          = entity.Layanan{}
+	transaksi        = entity.Transaksi{}
+	detail_transaksi = entity.DetailTransaksi{}
+	validate         = validator.New()
+	scanner          = bufio.NewScanner(os.Stdin)
 )
 
 // var scanner = bufio.NewScanner(os.Stdin)
@@ -125,6 +127,8 @@ func main() {
 			switch choice {
 			case "1":
 				displayAllTransaction()
+			case "2":
+				displayAddTransaction()
 			}
 		case "5":
 			isRun = false
@@ -783,7 +787,7 @@ func displayAllTransaction() {
 	fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 	resetTable()
-	t.AppendHeader(table.Row{"No", "Tanggal Masuk", "Tanggal Keluar", "Nomor Transaksi", "Diterima Oleh", "Nama Customer", "No Hp Customer"})
+	t.AppendHeader(table.Row{"No", "Tanggal Masuk", "Tanggal Keluar", "ID Transaksi", "Nomor Transaksi", "Diterima Oleh", "Nama Customer", "No Hp Customer"})
 	for i, trx := range transactions {
 		dateIn, err := time.Parse("2006-01-02T15:04:05Z", trx.DateIn)
 		dateOut, err := time.Parse("2006-01-02T15:04:05Z", trx.DateOut)
@@ -793,7 +797,7 @@ func displayAllTransaction() {
 		}
 		trx.DateIn = dateIn.Format("2006-01-02")
 		trx.DateOut = dateOut.Format("2006-01-02")
-		t.AppendRow([]interface{}{i + 1, trx.DateIn, trx.DateOut, trx.NoTransaction, trx.EmployerName, trx.CustomerName, trx.CustomerPhone})
+		t.AppendRow([]interface{}{i + 1, trx.DateIn, trx.DateOut, trx.Id, trx.NoTransaction, trx.EmployerName, trx.CustomerName, trx.CustomerPhone})
 	}
 	t.Render()
 
@@ -845,6 +849,58 @@ func displayDetailTransaction() {
 
 	t.Render()
 	fmt.Println()
+}
+
+func displayAddTransaction() {
+	var choice string
+	isLooping := true
+	var arrays []entity.DetailTransaksi
+	fmt.Println("Tambah Transaksi")
+	fmt.Println("===========================")
+
+	displayAllCustomer()
+	displayAllEmployer()
+	displayAllService()
+	fmt.Println("FORM TRANSAKSI")
+	fmt.Println("-----------------------------------------")
+	transaksi.Id = entity.GetLastIdTransaction()
+	fmt.Print("Masukkan Nomor Transaksi (000000) : ")
+	fmt.Scan(&transaksi.NoTransaction)
+	fmt.Print("Masukkan Tanggal Masuk (yyyy-mm-dd) : ")
+	fmt.Scan(&transaksi.DateIn)
+	fmt.Print("Masukkan Tanggal Keluar (yyyy-mm-dd) : ")
+	fmt.Scan(&transaksi.DateOut)
+	fmt.Print("Masukkan ID Karyawan : ")
+	fmt.Scan(&transaksi.EmployerId)
+	fmt.Print("Masukkan ID Customer : ")
+	fmt.Scan(&transaksi.CustomerId)
+	detail_transaksi.Id = entity.GetLastIdDetailTransaction()
+	for isLooping {
+		fmt.Println("\t-----------------------------------------")
+		fmt.Println("\tFORM DETAIL TRANSAKSI")
+		fmt.Println("\t-----------------------------------------")
+		fmt.Print("\tMasukkan ID Layanan yang dipilih : ")
+		fmt.Scan(&detail_transaksi.ServiceId)
+		fmt.Print("\tJumlah : ")
+		fmt.Scan(&detail_transaksi.Quantity)
+		arrays = append(arrays, detail_transaksi)
+		detail_transaksi.Id++
+		for true {
+			fmt.Print("\tIngin Menambah Detail Lainnya? (Y/n) ")
+			fmt.Scan(&choice)
+			if choice == "Y" {
+				isLooping = true
+				break
+			} else if choice == "n" {
+				isLooping = false
+				break
+			} else {
+				fmt.Println("\tPilihan Tidak Valid. Harus Y atau n !!!")
+			}
+		}
+	}
+	fmt.Println(arrays)
+	entity.MakeTransaction(transaksi, arrays)
 }
 
 func resetTable() {
