@@ -7,10 +7,10 @@ import (
 )
 
 type Layanan struct {
-	Id          int
-	ServiceName string
-	Price       int
-	Unit        string
+	Id          int    `validate:"numeric"`
+	ServiceName string `validate:"required"`
+	Price       int    `validate:"required,numeric,startsnotwith=0"`
+	Unit        string `validate:"required"`
 }
 
 /*
@@ -64,6 +64,22 @@ func GetAllService() []Layanan {
 	return services
 }
 
+func GetLastIdService() int {
+	selectStatement := "SELECT id FROM mst_layanan ORDER BY id DESC LIMIT 1"
+	var id int
+
+	db := db.ConnectDB()
+	defer db.Close()
+	var err error
+
+	err = db.QueryRow(selectStatement).Scan(&id)
+
+	if err != nil {
+		panic(err)
+	}
+	return id + 1
+}
+
 /*
 ================================== ADD SERVICE FUNCTION ==================================
 -> Menambah Data Layanan Baru
@@ -71,13 +87,14 @@ func GetAllService() []Layanan {
 */
 
 func AddService(service Layanan) {
+	id := GetLastIdService()
 	insertStatement := "INSERT INTO mst_layanan (id, service_name, price, unit) VALUES ($1, $2, $3, $4);"
 
 	db := db.ConnectDB()
 	defer db.Close()
 	var err error
 
-	_, err = db.Exec(insertStatement, service.Id, service.ServiceName, service.Price, service.Unit)
+	_, err = db.Exec(insertStatement, id, service.ServiceName, service.Price, service.Unit)
 
 	if err != nil {
 		panic(err)
@@ -115,17 +132,20 @@ func UpdateService(service Layanan) {
 */
 
 func DeleteService(id int) {
+	selectStatement := "SELECT service_id FROM trx_bill_detail WHERE service_id = $1;"
 	deleteStatement := "DELETE FROM mst_layanan WHERE id=$1;"
 
 	db := db.ConnectDB()
 	defer db.Close()
-	var err error
+	var servId int
 
-	_, err = db.Exec(deleteStatement, id)
-
-	if err != nil {
+	err := db.QueryRow(selectStatement, id).Scan(&servId)
+	if servId != 0 && err == nil {
+		fmt.Println("[MESSAGE] Maaf ID Tersebut tidak dapat DIHAPUS karena telah digunakan dalam Transaksi")
+	} else if servId == 0 && err != nil {
+		_, err = db.Exec(deleteStatement, id)
+		fmt.Println("[MESSAGE] Successfully Delete Data!")
+	} else if err != nil {
 		panic(err)
-	} else {
-		fmt.Println("Successfully Delete Data!")
 	}
 }

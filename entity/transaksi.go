@@ -186,7 +186,7 @@ func insertTransaction(transaction Transaksi, tx *sql.Tx) {
 
 	_, err := tx.Exec(insertStatement, transaction.Id, transaction.NoTransaction, transaction.DateIn, transaction.DateOut, transaction.CustomerId, transaction.EmployerId)
 
-	validate(err, "Insert Transaction", tx)
+	Validate(err, "Insert Transaction", tx)
 }
 
 func insertDetailTransaction(detailTrx []DetailTransaksi, transaction Transaksi, tx *sql.Tx) {
@@ -195,12 +195,12 @@ func insertDetailTransaction(detailTrx []DetailTransaksi, transaction Transaksi,
 	for _, trx := range detailTrx {
 		_, err := tx.Exec(insertStatement, trx.Id, trx.ServiceId, trx.Quantity, transaction.Id)
 
-		validate(err, "Insert Detail Transaction", tx)
+		Validate(err, "Insert Detail Transaction", tx)
 	}
 	fmt.Println("Successfully Insert All Detail Transaction")
 }
 
-func validate(err error, message string, tx *sql.Tx) {
+func Validate(err error, message string, tx *sql.Tx) {
 	if err != nil {
 		tx.Rollback()
 		fmt.Println(err, "Transaction Rollback!")

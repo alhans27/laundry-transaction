@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "bufio"
+	"bufio"
 	"enigma-laundry/entity"
 	"fmt"
 	"os"
@@ -18,7 +18,8 @@ var (
 	customer = entity.Customer{}
 	employer = entity.Employer{}
 	layanan  = entity.Layanan{}
-	Validate = validator.New()
+	validate = validator.New()
+	scanner  = bufio.NewScanner(os.Stdin)
 )
 
 // var scanner = bufio.NewScanner(os.Stdin)
@@ -52,7 +53,7 @@ func main() {
 
 	// addService(layanan)
 	// updateService(layanan)
-	// deleteService(7)
+	// entity.DeleteService(5)
 
 	// arrays1 := getAllTransaction()
 	// for _, x := range arrays1 {
@@ -112,6 +113,12 @@ func main() {
 			switch choice {
 			case "1":
 				displayAllService()
+			case "2":
+				displayAddService()
+			case "3":
+				displayUpdateService()
+			case "4":
+				displayDeleteService()
 			}
 		case "4":
 			choice = displayTransactionMenu()
@@ -240,7 +247,7 @@ func displayAddCustomer() {
 		fmt.Print("Masukkan Alamat Customer : ")
 		fmt.Scan(&customer.Address)
 		fmt.Println("--------------------------------------------")
-		err := Validate.Struct(customer)
+		err := validate.Struct(customer)
 		if err != nil {
 			validationErrors := err.(validator.ValidationErrors)
 			for _, fieldErr := range validationErrors {
@@ -321,7 +328,7 @@ func displayUpdateCustomer() {
 		fmt.Print("Masukkan Alamat Customer : ")
 		fmt.Scan(&customer.Address)
 		fmt.Println("--------------------------------------------")
-		err := Validate.Struct(customer)
+		err := validate.Struct(customer)
 		if err != nil {
 			validationErrors := err.(validator.ValidationErrors)
 			for _, fieldErr := range validationErrors {
@@ -398,7 +405,6 @@ func displayDeleteCustomer() {
 			break
 		}
 	}
-
 }
 
 func displayAllEmployer() {
@@ -430,7 +436,7 @@ func displayAddEmployer() {
 		fmt.Print("Masukkan Alamat Karyawan : ")
 		fmt.Scan(&employer.Address)
 		fmt.Println("--------------------------------------------")
-		err := Validate.Struct(employer)
+		err := validate.Struct(employer)
 		if err != nil {
 			validationErrors := err.(validator.ValidationErrors)
 			for _, fieldErr := range validationErrors {
@@ -511,7 +517,7 @@ func displayUpdateEmployer() {
 		fmt.Print("Masukkan Alamat Karyawan : ")
 		fmt.Scan(&employer.Address)
 		fmt.Println("--------------------------------------------")
-		err := Validate.Struct(employer)
+		err := validate.Struct(employer)
 		if err != nil {
 			validationErrors := err.(validator.ValidationErrors)
 			for _, fieldErr := range validationErrors {
@@ -588,38 +594,185 @@ func displayDeleteEmployer() {
 			break
 		}
 	}
-
 }
 
 func displayAllService() {
-	var choice string
 	services := entity.GetAllService()
 	fmt.Println()
 	fmt.Println("|\t\t\tLAYANAN ENIGMA LAUNDRY\t\t\t|")
 	fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 	resetTable()
-	t.AppendHeader(table.Row{"No", "Nama Layanan", "Harga", "Satuan"})
+	t.AppendHeader(table.Row{"No", "Nama Layanan", "ID Layanan", "Harga", "Satuan"})
 	for i, serv := range services {
-		t.AppendRow([]interface{}{i + 1, serv.ServiceName, serv.Price, serv.Unit})
+		t.AppendRow([]interface{}{i + 1, serv.ServiceName, serv.Id, serv.Price, serv.Unit})
 	}
 	t.Render()
 
 	fmt.Println()
+}
 
-	for choice != "Y" && choice != "y" || choice != "N" && choice != "n" {
-		fmt.Print("Back to Main Menu? (Y/n)\n")
-		fmt.Scan(&choice)
-		if choice == "Y" || choice == "y" {
-			isRun = true
-			break
-		} else if choice == "N" || choice == "n" {
-			isRun = false
-			break
-		} else {
-			fmt.Println("Anda menginputkan pilihan yang salah. Coba lagi!")
+func displayAddService() {
+	var choice string
+	isLooping := true
+	fmt.Println("Tambah Layanan Baru")
+	fmt.Println("===========================")
+	for isLooping {
+		fmt.Print("Masukkan Nama Layanan : ")
+		fmt.Scan(&layanan.ServiceName)
+		fmt.Print("Masukkan Harga Layanan : ")
+		fmt.Scan(&layanan.Price)
+		fmt.Print("Masukkan Satuan : ")
+		fmt.Scan(&layanan.Unit)
+		fmt.Println("--------------------------------------------")
+		err := validate.Struct(layanan)
+		if err != nil {
+			validationErrors := err.(validator.ValidationErrors)
+			for _, fieldErr := range validationErrors {
+				if fieldErr.Field() == "ServiceName" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					}
+					fmt.Println("[!!!] Kolom Nama Layanan", message)
+				}
+				if fieldErr.Field() == "Price" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					case "numeric":
+						message = "Harus Berupa Angka!"
+					case "startsnotwith":
+						message = "Tidak Boleh Diawali dengan " + fieldErr.Param() + "!"
+					}
+					fmt.Println("[!!!] Kolom Harga Layanan", message)
+				}
+				if fieldErr.Field() == "Unit" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					}
+					fmt.Println("[!!!] Kolom Satuan", message)
+				}
+			}
+			fmt.Println("--------------------------------------------")
+			continue
+		}
+		fmt.Println("Data Yang Anda Inputkan =>")
+		fmt.Printf("Nama Layanan : %s\nHarga Layanan : %d\nSatuan : %s\n", layanan.ServiceName, layanan.Price, layanan.Unit)
+
+		for true {
+			fmt.Print("Apakah Data Tersebut Sudah Benar? (Y/n) ")
+			fmt.Scan(&choice)
+			if choice == "Y" {
+				fmt.Println("++++++++++++++++++++++++++++++++++++++++++++++++++")
+				entity.AddService(layanan)
+				isLooping = false
+				break
+			} else if choice == "n" {
+				isLooping = true
+				break
+			} else {
+				fmt.Println("Pilihan Tidak Valid. Harus Y atau n !!!")
+			}
 		}
 	}
+}
+
+func displayUpdateService() {
+	var isLooping = true
+	var choice string
+
+	fmt.Println("Update Data Layanan")
+	fmt.Println("===========================")
+	displayAllService()
+	fmt.Print("Masukkan Id Layanan yang hendak di Update : ")
+	fmt.Scan(&layanan.Id)
+
+	for isLooping {
+		fmt.Print("Masukkan Nama Layanan : ")
+		fmt.Scan(&layanan.ServiceName)
+		fmt.Print("Masukkan Harga Layanan : ")
+		fmt.Scan(&layanan.Price)
+		fmt.Print("Masukkan Satuan : ")
+		fmt.Scan(&layanan.Unit)
+		fmt.Println("--------------------------------------------")
+		err := validate.Struct(layanan)
+		if err != nil {
+			validationErrors := err.(validator.ValidationErrors)
+			for _, fieldErr := range validationErrors {
+				if fieldErr.Field() == "ServiceName" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					}
+					fmt.Println("[!!!] Kolom Nama Layanan", message)
+				}
+				if fieldErr.Field() == "Price" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					case "numeric":
+						message = "Harus Berupa Angka!"
+					case "startsnotwith":
+						message = "Tidak Boleh Diawali dengan " + fieldErr.Param() + "!"
+					}
+					fmt.Println("[!!!] Kolom Harga Layanan", message)
+				}
+				if fieldErr.Field() == "Unit" {
+					var message string
+					switch fieldErr.Tag() {
+					case "required":
+						message = "Tidak Boleh Kosong!"
+					}
+					fmt.Println("[!!!] Kolom Satuan", message)
+				}
+			}
+			fmt.Println("--------------------------------------------")
+			continue
+		}
+		fmt.Println("Data Yang Anda Inputkan =>")
+		fmt.Printf("Id Layanan : %d\nNama Layanan : %s\nHarga Layanan : %d\nSatuan : %s\n", layanan.Id, layanan.ServiceName, layanan.Price, layanan.Unit)
+
+		for true {
+			fmt.Print("Apakah Data Tersebut Sudah Benar? (Y/n) ")
+			fmt.Scan(&choice)
+			if choice == "Y" {
+				fmt.Println("++++++++++++++++++++++++++++++++++++++++++++++++++")
+				entity.UpdateService(layanan)
+				isLooping = false
+				break
+			} else if choice == "n" {
+				isLooping = true
+				break
+			} else {
+				fmt.Println("Pilihan Tidak Valid. Harus Y atau n !!!")
+			}
+		}
+	}
+}
+
+func displayDeleteService() {
+
+	fmt.Println("Delete Data Layanan")
+	fmt.Println("===========================")
+	services := entity.GetAllService()
+	displayAllService()
+	fmt.Print("Masukkan Id Layanan yang hendak di Hapus : ")
+	fmt.Scan(&layanan.Id)
+	for _, serv := range services {
+		if layanan.Id == serv.Id {
+			fmt.Println("++++++++++++++++++++++++++++++++++++++++++++++++++")
+			entity.DeleteService(serv.Id)
+			break
+		}
+	}
+
 }
 
 func displayAllTransaction() {
